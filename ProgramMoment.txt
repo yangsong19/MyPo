@@ -1,0 +1,26 @@
+		***编程心得***
+
+2013-10-16	--->
+2	http://learn.jquery.com/events/event-delegation/ JQuery学习网站 
+
+1	开发框架 --> 以下是iteye上一些大牛对于框架的一些构思及尝试
+
+	【Guice】+【Velocity】+【DBUtil】	-->  dbutil - apache
+	【Spring MVC】+【Spring core】+【Spring jdbc】  -->	 #springrain#   http://www.oschina.net/p/springrain
+	【Smart Framework】	http://my.oschina.net/huangyong/blog?disp=3&catalog=386891&p=1
+	【JFinal】	http://my.oschina.net/jfinal
+		
+		
+2013-10-15	--->
+1	What(做什么内容)、Who（执行者）、When（时间要求）、Way（方法策略）、Worth（结果与价值）
+	当自己没有思路时，这个思考工作流程会起到很大的作用。
+	
+	
+2013-10-12	--->		
+1	接口就是用来实现某个具体功能的的统一访问点。具体实现类，你要是有这种需求了，你实现我就ok		
+2	TheadLocal类里的那个get方法，一小段代码，却暗藏杀机，真是不能觉得自己看一遍就什么原理都懂了，就能实现一个了。这中间还有很远的距离呢！！！这段代码的逻辑相当完整，自证。
+	就像刚开始学骑单车的小孩，大人告诉他怎么上车，怎么控制把手，他觉得这个还不简单！但是当一辆自行车真正摆在他面前时，在没有人搀扶的情况下，却十有八九会摔倒。
+	借以告诫自己，事必躬亲，操手实践，才能验证一二。
+3	似乎有这样的感觉了，java编程中，即面向对象思维，对象是从具有完整内部细节的实体高度抽象出来的一个整体，无非是这样，它封装了各种内部细节及动作的整体，记住：这是一个完整的
+	结构或者是容器，只不过内部是通过一系列隐秘的机制互联起来的。我想说的是，带来的一个明显的好处是，你有一种把握住它的冲动了。
+4	MyEclipse java debug:F5进入方法内部;F6下一步
