@@ -1,5 +1,10 @@
 		***编程心得***
-
+2013-10-21	--->
+	北京尚学堂视频教程下载地址      http://www.bjsxt.com/shipinxiazai/
+	私塾视频教程下载地址        http://sishuok.com/
+	传智博客视频教程下载地址    http://www.itcast.cn/channel/video.shtml
+	张孝详视频教程下载地址          http://www.verycd.com/topics/239368/
+	
 2013-10-16	--->
 2	http://learn.jquery.com/events/event-delegation/ JQuery学习网站 
 

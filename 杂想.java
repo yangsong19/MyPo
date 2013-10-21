@@ -1,5 +1,6 @@
 							Challenge Is Everywhere,What Inspire Your Passion.I strongly feel about that the pursuit of knowledge is my life.
-
+2013-10-21	--->
+	攻城狮	程序猿
 2013-10-18	--->
 1	在这样一个黑白颠倒，是非不分，善恶轮转，真假难辨的时代，你只能做到不怒，不愤，不悲，不动，才能心平气和地去思考							
 							

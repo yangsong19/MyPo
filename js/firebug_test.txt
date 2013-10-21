@@ -1,0 +1,145 @@
+<html>
+	<head></head>
+	<body>
+		<div id="00">
+			firebug调试器里调试JavaScript，用的是firebug的一套API
+		
+			1	$$('#para');	--->	获取id为para的dom元素p
+			
+			2	下面的HTML代码片段显示在其DOM树上有四个<input>HTML元素。我们将使用$$(选择器)的方法来选择全部四个元素
+				$$('input');	//返回的是一个数组
+				
+				var objs = $x('html/body/input');	//此方法返回与给定的【XPath】表达式相匹配的元素的数组
+				console.log(objs[0].name);
+				console.log(objs[1].name);
+				console.log(objs[2].name);
+				console.log(objs[3].name);
+				dir(objs);	
+				
+			3	这个方法将打印一个HTML或XML元素的XML源码树
+
+				var obj = $$('body')[0]
+				dirxml(obj)
+				
+			4	这个方法让我们可以用最适合的标签来检查一个对象，或者使用与可选参数tabName相一致的标签。
+				可以使用的标签名字有HTML、CSS、SCRIPT，以及DOM。
+				inspect($$('input')[0], 'html')
+				
+			5	这个方法返回一个包含此对象所有属性的名字的数组。
+				还是使用我们前面使用的HTML文件为例，执行下面的代码将显示第一个input标签的全部属性、实体、函数和常量
+				keys($$('input')[0])
+				
+				这个方法将返回一个包含该对象所有属性值的数组。
+				执行下面的代码将显示DOM树中第一个input标签的所有属性值
+				values($$('input')[0])
+				
+			4	这两个方法将在函数的第一行增加或移除断点。
+				我们将在后面第8章“AJAX开发”中学习这些方法的细节内容。
+				debug(fn)和undebug(fn)
+				
+			5	monitor(fb_monitor);
+				monitor(函数名)和unmonitor(函数名)
+				这些方法被用来打开或关闭对一个函数所有调用的日志记录。
+				通常，为了查看JavaScript中某个函数是否被调用，我们在其内部设置alert()或console.log()方法。这是非常繁琐的事情。
+				首先，我们不得不在一个大的JavaScript文件中找到这个方法，然后我们需要添加alert或log方法。接下来，当我们看到每
+				样事情都对了，我们需要从代码中移除所有的这些日志声明。
+				Firebug用巧妙的方式来处理这种监视工作。为了判断某个函数是否被调用，我们仅仅需要知道函数的名字就可以了。通过使
+				用monitor()方法，我们可以跟踪发现该函数被调用了多少次。我们将在控制台上看到提示，告诉我们正在被监视的函数是否
+				被调用了。并且，它还会给我们一个指向函数脚本的链接。
+				
+				unmonitor(fb_monitor) 取消对函数fb_monitor的监控
+				
+			6	monitorEvents($('btn'));		unmonitorEvents($('btn'));
+				此方法将开启对发送到一个对象的所有事件的日志记录。可选的参数类型指定只记录特定的消息族。类型中最常使用的值是mouse和key。
+				
+			7
+				控制台API
+
+				Firebug对所有加载的页面增加了一个全局变量，命名为“console”。这个对象包括许多方法，这些方法使得我们可以向控制台写入信息，以揭示出脚本运行中的信息。
+				console.log(object[, objcet, ...])
+
+				这个方法向控制台写入一个消息。我们可以传递任意多的参数，这些参数在一个空格分隔行内被链接起来。
+
+				log的第一个参数也许是包含类似printf字符串替换模式的字符串。例如：
+
+								console.log("The %s jumped over %d tall buildings", animal, count);
+
+				上面的例子可以用非字串替换的方式来重写，效果一样：
+
+								console.log("The", animal, "jumped over", count, "tall buildings");
+
+				这两个技术可以联合起来用。如果我们使用字符串替换模式，但是给出的参数多过替换模式使用的参数，其余的参数将附加在空格分隔行内，如下面的代码所示：
+
+						console.log("I am %s and I have:", myName, thing1, thing2, thing3);
+
+				如果对对象进行了日志记录，这些对象显示出来的就不止是静态文本，还有交互式的超链接，这些链接分别指向Firebug中与该对象相关的HTML、CSS、脚本或DOM标签页。
+				我们也可以使用%o的模式在字符串中替换超链接。
+
+				下面是我们可以使用的字符串替代的全部模式：
+
+				Table�1.1.�
+
+
+				字符串 	替换模式
+				%s 	字符串
+				%d, %i 	整数（还不支持格式化的数值）
+				%f 	浮点数（还不支持格式化的数值）
+				%o 	对象链接
+				console.debug(object[, object, ...])
+
+				此方法把一个消息写到控制台，这个消息包括了指向此方法被调用的行的超链接。
+				console.info(object[, object, ...])
+
+				此方法向控制台写入一个消息，这个消息带有可视化的信息图标（info icon）、作色代码、以及指向此方法被调用的行的超链接。
+				console.warn(object[, object, ...])
+
+				此方法向控制台写入一个消息，这个消息带有可视化的警告图标、作色代码、以及指向此方法被调用的行的超链接。
+				console.error(object[, object, ...])
+
+				此方法向控制台写入一个消息，这个消息带有可视化的错误图标（error icon）、作色代码、以及指向此方法被调用的行的超链接。
+				console.assert(expression[, object, ...])
+
+				此方法测试一个表达式是否为真，如果不是，它将向控制台写入一个消息，并抛出异常。
+				console.dir(object)
+
+				此方法打印出对象的所有属性的交互式列表。看起来与我们在DOM标签页中看到的视图是一致的。
+				console.dirxml(node)
+
+				此方法打印HTML或XML元素的XML源代码树。这与我们在HTML标签页中看到的是一致的。我们可以通过点击节点在HTML标签页内检查此节点。
+				console.trace()
+
+				此方法输出Javascript代码在被调用时所执行交互式栈的跟踪。
+
+				这个栈跟踪列出了栈中的函数细节，以及每一个传递给函数的参数值。通过点击函数，将转到脚本标签页内相应代码的位置。并且，点击参数值将可以查看其在DOM或HTML标签页中的情况。
+				console.group(object[, object, ...])
+
+				此方法想控制台写入一个消息，并且以后向此控制台写入的消息都被缩进的嵌入一个块中。调用console.groupEnd()可以关闭这个块。
+				console.groupCollapsed(object[, object, ...])
+
+				这个方法类似于console.group()，只不过这个块最初是折叠的。
+				console.groupEnd()
+
+				此方法关闭被console.group()或console.groupEnd()最近打开的块。
+				console.time(name)
+
+				此方法用给定的名字创建一个新的计时器。用相同的名字调用console.timeEnd(名字)将停止计时器并且打印出所耗用的时间。
+				console.timeEnd(name)
+
+				此方法终止console.time(name)所创建的定时器，并打印出消耗的时间。
+				console.profile([title])
+
+				此方法启用JavaScript概写器。作为可选项的参数将会出现在概写报告的头部。
+				console.profileEnd()
+
+				此方法将关闭JavaScript概写器并打印出报告。
+				console.count([title])
+
+				此方法将返回count被调用的代码行的执行时间。作为可选参数的标题，将会在count所在行增加一个消息输出。
+		</div>
+	
+	</body>
+</html>
+
+
+
+

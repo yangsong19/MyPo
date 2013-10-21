@@ -1,5 +1,25 @@
 	学习js的一些总结
 
-2013-10-18
-1	js文件的加载时机
+2013-10-21
+1	有关this关键字
+
+ In JavaScript, as in most object-oriented programming languages, this is a special keyword that is used within methods to refer to 
+ the object on which a method is being invoked. The value of this is determined using a simple series of steps:
+
+    01	If the function is invoked using Function.call or Function.apply, this will be set to the first argument passed to call/apply. 
+		If the first argument passed to call/apply is null or undefined, this will refer to the global object (which is the window object in Web browsers).
+    02	If the function being invoked was created using Function.bind, this will be the first argument that was passed to bind at the 
+		time the function was created.
+    03	If the function is being invoked as a method of an object, this will refer to that object.
+	
+    Otherwise, the function is being invoked as a standalone function not attached to any object, and this will refer to the global object.
+
+在JavaScript中，正如大多数的面向对象编程语言那样，THIS 是一个特殊的关键字，当它在方法内部被使用时，将会指向这个方法被调用的对象。THIS 关键字可以通过下面几个步骤来确定：
+
+	01	如果一个函数以 Function.call 或 Function.apply 的方式被调用，THIS 关键字将会被设成 call/apply 的第一个参数传递进来。如果传递给 call/apply 的第一个参数
+		是 null 或者 undefined ，THIS 关键字将会指向这个全局对象（web浏览器的 window 对象）
+	02	如果被调用的函数是通过 Function.bind 方式创建出来的，THIS 关键字将会在这个函数被创建的时候，绑定到其第一个参数并传进来
+	03	如果一个函数作为一个对象的方法被调用，那么 THIS 关键字将会指向这个对象
+	
+	其它情况，这个函数将会以一种没有绑定任何对象的单独函数的方式被调用，THIS 关键字将会指向全局对象
 	
