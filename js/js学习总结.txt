@@ -14,6 +14,7 @@
 	
     Otherwise, the function is being invoked as a standalone function not attached to any object, and this will refer to the global object.
 
+	
 在JavaScript中，正如大多数的面向对象编程语言那样，THIS 是一个特殊的关键字，当它在方法内部被使用时，将会指向这个方法被调用的对象。THIS 关键字可以通过下面几个步骤来确定：
 
 	01	如果一个函数以 Function.call 或 Function.apply 的方式被调用，THIS 关键字将会被设成 call/apply 的第一个参数传递进来。如果传递给 call/apply 的第一个参数

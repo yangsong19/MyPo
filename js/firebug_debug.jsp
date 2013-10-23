@@ -37,17 +37,7 @@
 				for(var i=0; i<count; i++){}
             }
 			
-			var myObject = {
-				sayHello : function() {
-					console.log('Hi! My name is ' + this.myName );
-				},
-				myName : 'yangsong'
-			};
-			var secondObject = {
-				myName : 'tom'
-			};
-			myObject.sayHello();
-			myObject.sayHello.call(secondObject);
+			
 		</script>
 	</head>
 	<body>
