@@ -36,11 +36,72 @@
 			
 			有几个别的例子是这样子的，object methods and core methods 和相同名字的方法，比如， $.each and $.fn.each.基于这些个个例，当你在文档中探索正确的方法时
 			一定要特别注意。
+			
+			 = =================
+			 = Utility Methods =
+			 ===================
+			jQuery offers several utility methods in the $ namespace. These methods are helpful for accomplishing routine programming tasks. 
+			Below are examples of a few of the utility methods; for a complete reference on jQuery utility methods, 
+			visit http://api.jquery.com/category/utilities/. 
 		*/
+			// $.trim
+			console.log($.trim("    before " + " after         "));
+
+			// $.each
 			$.each({foo : 'bar', baz : 'bim'}, function(k, v){
 				console.log(k + ":" + v);
-			});
+			});//iterate an object
+			
+			$.each(['foo', 'bar', 'biz'], function(idx, val) {
+				console.log('element[' + idx + '] = ' + val);
+			});//iterate an array
+			//There is also a method $.fn.each, which is used for iterating over a selection of elements. 
+			
+			// $.inArray
+			var myArr = [1, 2, 3, 5];
+			if($.inArray(4, myArr) === -1) {//找出元素4在myArr中的索引，找不到返回 -1
+				console.log('4 is not in myArr');
+			}
+			
+			var firstObj = {foo : 'bar', a : 'boo'};
+			var secondObj = {foo : 'baz', b : 'poo'};
+			/*
+				$.extend	--	Changes the properties of the first object using the properties of subsequent objects. 
+				
+				var newObj = $.extend(firstObj, secondObj);
+				console.log(newObj.foo + '\' newObj.a);	// baz
+				console.log(firstObj.foo);	// baz
+				console.log(secondObj.foo);	// baz
+			*/ 
+			// If you don't want to change any of the objects you pass to $.extend, pass an empty object as the first argument
+			var newObj2 = $.extend({}, firstObj, secondObj);
+			console.log(newObj2.foo + '|' + newObj2.a + '|' + newObj2.b);	// baz\boo\poo
+			console.log(firstObj.foo);	// bar
+			console.log(secondObj.foo);	// baz
+			//	从上面可以看出，$.extend返回的新对象里面包含firstObj,secondObj的所有属性
+			
+			// $.proxy
+			var myFunction = function() { console.log(this); };
+			var myObject = { foo : 'bar' };			 
+			myFunction(); // Window jq_basic_example.jsp		 
+			var myProxyFunction = $.proxy(myFunction, myObject);
+			myProxyFunction(); // Object { foo="bar" }
+					
+			//  If you have an object with methods, you can pass the object and the name of a method to return a function that 
+			//	will always run in the scope of the object
+			var myObject = {
+				myFn : function() {
+					console.log(this);
+				}
+			};
+			$('<a/>', {
+				html : 'This is a new link',
+				id : 'foo',
+				href : 'javascript:void(0);'
+			}).appendTo('body'); 
+			$('#foo').click(myObject.myFn); //  <a id="foo" href="javascript:void(0);"/>
+			$('#foo').click($.proxy(myObject, 'myFn')); //  Object { myFn=function() }
 		})			
 	</script>
-	<a href='javascript:void(0);' >baidu</a>
+		
 </html>
