@@ -1,4 +1,8 @@
 							Challenge Is Everywhere,What Inspire Your Passion.I strongly feel about that the pursuit of knowledge is my life.
+2013-10-30	--->
+1	雾霾又倾城
+2	歪斜，扶正
+3	看来不仅仅是我有这个贱毛病，别人和我一样，都有！那就是，总是能在别人激情澎湃洋洋自得之时，发现其弱点，然后一盆冷水浇上去。。。
 2013-10-23	--->
 1	感觉在翻译英语句子或文章时，结合【上下文语境】，去理解其意思，是很准备快速的;还是就是你可以一种颠倒的思维去翻译;还可以根据生活经验，生活情景去猜测其大概意思。
 2	独立思考才能获取独立人格	

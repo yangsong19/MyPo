@@ -45,9 +45,12 @@
 			visit http://api.jquery.com/category/utilities/. 
 		*/
 			// $.trim
-			console.log($.trim("    before " + " after         "));
+			console.log('----------$ vs $()-----------');
+			console.log('----------$.trim-----------');
+			console.log($.trim("    trim head or tail extra string           "));
 
 			// $.each
+			console.log('----------$.each-----------');
 			$.each({foo : 'bar', baz : 'bim'}, function(k, v){
 				console.log(k + ":" + v);
 			});//iterate an object
@@ -58,6 +61,7 @@
 			//There is also a method $.fn.each, which is used for iterating over a selection of elements. 
 			
 			// $.inArray
+			console.log('----------$.inArray-----------');
 			var myArr = [1, 2, 3, 5];
 			if($.inArray(4, myArr) === -1) {//找出元素4在myArr中的索引，找不到返回 -1
 				console.log('4 is not in myArr');
@@ -67,28 +71,37 @@
 			var secondObj = {foo : 'baz', b : 'poo'};
 			/*
 				$.extend	--	Changes the properties of the first object using the properties of subsequent objects. 
-				
+								用后面的那个对象的属性值去修改第一个对象相对应的属性值
 				var newObj = $.extend(firstObj, secondObj);
 				console.log(newObj.foo + '\' newObj.a);	// baz
 				console.log(firstObj.foo);	// baz
 				console.log(secondObj.foo);	// baz
 			*/ 
 			// If you don't want to change any of the objects you pass to $.extend, pass an empty object as the first argument
+			console.log('----------$.extend-----------');
 			var newObj2 = $.extend({}, firstObj, secondObj);
 			console.log(newObj2.foo + '|' + newObj2.a + '|' + newObj2.b);	// baz\boo\poo
 			console.log(firstObj.foo);	// bar
 			console.log(secondObj.foo);	// baz
 			//	从上面可以看出，$.extend返回的新对象里面包含firstObj,secondObj的所有属性
 			
-			// $.proxy
+			/*
+				$.proxy
+				Returns a function that will always run in the provided scope — that is, sets the meaning of this inside the passed function to the second argument.
+				返回一个函数，什么样的函数呢，其始终会运行在你指定的那个范围内的函数 -- 这也就是说，将你传递进来的函数内部的 this 指向你传进来的第二个参数。
+			*/ 
+			console.log('----------$.proxy-----------');
 			var myFunction = function() { console.log(this); };
 			var myObject = { foo : 'bar' };			 
 			myFunction(); // Window jq_basic_example.jsp		 
 			var myProxyFunction = $.proxy(myFunction, myObject);
 			myProxyFunction(); // Object { foo="bar" }
 					
-			//  If you have an object with methods, you can pass the object and the name of a method to return a function that 
-			//	will always run in the scope of the object
+			/*
+				If you have an object with methods, you can pass the object and the name of a method to return a function that will always run in the scope of the object
+				如果你有一个内部包含函数的对象，你可以传递这个对象及这个对象的方法名
+			*/  
+				
 			var myObject = {
 				myFn : function() {
 					console.log(this);
@@ -101,7 +114,77 @@
 			}).appendTo('body'); 
 			$('#foo').click(myObject.myFn); //  <a id="foo" href="javascript:void(0);"/>
 			$('#foo').click($.proxy(myObject, 'myFn')); //  Object { myFn=function() }
+			
+			/*
+				Checking types 
+				Checking the type of an arbitrary value 
+			*/
+			console.log('----------typeof-----------');
+			var myValue = [1, 2, 3];
+			 
+			// Using JavaScript's typeof operator to test for primative types
+			typeof myValue == 'string'; // false
+			typeof myValue == 'number'; // false
+			typeof myValue == 'undefined'; // false
+			typeof myValue == 'boolean'; // false
+			 
+			// Using strict equality operator to check for null
+			myValue === null; // false
+			 
+			// Using jQuery's methods to check for non-primative types
+			jQuery.isFunction(myValue); // false
+			jQuery.isPlainObject(myValue); // false
+			jQuery.isArray(myValue); // true
+			console.log($.isArray(myValue)); // true
+			
+			/*
+				Data Methods 
+				As your work with jQuery progresses, you'll find that there's often data about an element that you want to store with the element. 
+				In plain JavaScript, you might do this by adding a property to the DOM element, but you'd have to deal with memory leaks in some 
+				browsers. jQuery offers a straightforward way to store data related to an element, and it manages the memory issues for you. 
+				
+				这段话主要讲，你想在存储一个元素时连带其数据一起存储，通常你可能会这样做，将某个属性加到 DOM element上，但是，你不得不解决在某些浏览器
+				上的内存泄漏问题。jQuery提供了一个直截明了的方案来存储与元素相关的数据，而且其能够管理内存问题。			
+				
+			*/
+			console.log('-----------$.fn.data---------');
+			$('<div/>', {
+				id : 'myDiv',
+				html : 'This is a div'
+			}).appendTo('body');
+			$('#myDiv').data('keyName', { foo : 'bar' });
+			console.log($('#myDiv').data('keyName')); // Object { foo="bar" }
+			
+			/*
+				You can store any kind of data on an element, and it's hard to overstate the importance of this when you get into complex application 
+				development. For the purposes of this class, we'll mostly use $.fn.data to store references to other elements.
+				For example, we may want to establish a relationship between a list item and a div that's inside of it. We could establish this relationship 
+				every single time we interact with the list item, but a better solution would be to establish the relationship once, and then store a pointer 
+				to the div on the list item using $.fn.data: 
+				
+				你可以存储与某个元素相关的任意类型数据，这个好处在你开发一个复杂的应用时会体现出来。出于这节课的目的，我们大多会用 $.fn.data 来存储这些元素的引用。
+				举个例子，我们可能想在list item 和某个 div 之间建立关系，我们可以在和每一个list item交互时进行，但是一个好的解决方案一次性建立起来，而且用 $.fn.data 
+				存储一个关联 list item 和这个 div 指针 [如下例为 ‘contentDiv’]。				
+				
+			*/
+			$('#myList li').each(function() {
+				var $li = $(this), $div = $li.find('div.content');//'div.content' !== 'div .content',中间没有空格！！！
+			    $li.data('contentDiv', $div);
+			});
+			 
+			// later, we don't have to find the div again;
+			// we can just read it from the list item's data
+			var $firstLi = $('#myList li:first');
+			console.log($firstLi.data('contentDiv').html('new content')); 
+			// In addition to passing $.fn.data a single key-value pair to store data, you can also pass an object containing one or more pairs. 						
 		})			
 	</script>
-		
+		<div id='myList'>
+			<li>
+				<div class="content">div li 1</div>
+			</li>
+			<li>
+				<div class="content">div li 2</div>
+			</li>
+		</div>
 </html>
