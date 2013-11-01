@@ -56,25 +56,58 @@
 				console.log(this.innerHTML);	// <span>3</span> button #3 clicks. --- 足以证明这是个 DOM element 了吧 :)
 				console.log($this.html());	// <span>3</span> button #3 clicks.	--- 和上面相比返回同样的结果，但是所有的方法却是各自独有的！！！
 				
-				console.log(this === $target);  // fasle
-				console.log('this.length:' + $target.length + ' | $this.size:' + $this.size());
-				console.log(dir($target));
+				console.log(this === $target[0]);  // true false  --  第一个为 true,第二个为 false
+				console.log($target.get(0) === $target[0]); // true true
+				
+				console.log('this.attributes.length:' + this.attributes.length + ' | $this.size:' + $this.size());
+				//console.log(dir($target));
 				console.log('done');
 			}
 			
+			console.log('$target.length:' + $target.length); // 2 注意这个值是 ‘2’，不是 ‘1’，因为我多添加了一个 div.old 
 			if($target.length) {
-				$target.fadeOut('turtle', $done);
+				console.log('------first in----------');
+				$target.fadeOut('turtle', $done);			// 所以这个地方会看到 $done 执行了两次，一次是 div3,另一次是 div4，它们同时都绑定上了 fadeOut 及 $done 这个动作
+				console.log('------first out---------');	// 从打印出来的日志，可以看到 first in,first out中间没有输出内容，这就是回调函数的作用。只有当 fadeOut动画结束后，才去执行 $done函数
 			} else {
+				console.log('------second in---------');
 				$done();
+				console.log('------second out--------');
 			}
 			
+			console.log('======' + $target.get(0));  // [object HTMLDivElement]
+			
+			/*
+				Color-related properties cannot be animated with $.fn.animate using jQuery out of the box. Color animations can easily be accomplished by including 
+				the color plugin. We'll discuss using plugins later in the book. 
+				与颜色相关的属性通过 $.fn.animate 不起作用。需要引入颜色相关的插件  jquery-animate-colors.js 
+			
+			$('div.funtimes').animate(
+				{
+					left : "+=50",
+					opacity : 0.25
+				},
+				2000, // duration
+				function() { console.log('finished!'); // calback
+			});
+			*/
+			$('div.funtimes').animate(
+			    {
+			        left : [ "+=50", "swing" ],
+			        opacity : [ 0.25, "linear" ]
+			    },
+			    3000
+			);
+			$('div.funtimes').show(300).delay(1000).hide(300);
+			// $.fn.stop  jQuery.fx.off
 		})			
-					
+		
 	</script>
 	<body>
 		<div style='display:none'><span>0</span> button #0 clicks.</div>
 		<div style='display:none'><span>1</span> button #1 clicks.</div>
-		<div class='old'><span>3</span> button #3 clicks.</div>
-		<div class='old'><span>4</span> button #4 clicks.</div>
+		<div class='old' name='div3'><span>3</span> button #3 clicks.</div>
+		<div class='old' name='div4'><span>4</span> button #4 clicks.</div>
+		<div class='funtimes' ><span>5</span> button #5 clicks.</div>
 	</body>
 </html>
