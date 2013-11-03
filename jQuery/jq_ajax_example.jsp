@@ -1,9 +1,9 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<%@ page language="java" import="java.util.*" pageEncoding="UTF-8"%>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<script type='text/javascript' src='../js/jquery-1.10.2.min.js'></script>
-	 <style type='text/css' rel='stylesheet' >
+	<script type='text/javascript' src='jquery-1.10.2.js'></script>
+	 <style type='text/css' >
 		button {
 			margin: 10px;
 		}
@@ -88,42 +88,6 @@
 				作者强烈支持用 JSON 格式，因为这个格式太灵活了。
 
 			*/
-			
-			$.ajax({
-			    // the URL for the request
-			    url : '/AjaxApp/ajax/test',
-			 
-			    // the data to send
-			    // (will be converted to a query string)
-			    data : { id : 1},
-			 
-			    // whether this is a POST or GET request
-			    type : 'GET',
-			 
-			    // the type of data we expect back
-			    dataType : 'json',
-			 
-			    // code to run if the request succeeds;
-			    // the response is passed to the function
-			    success : function(json) {
-			        $('<h1/>').text(json.title).appendTo('body');
-			        $('<div class="content"/>')
-			            .html(json.html).appendTo('body');
-			    },
-			 
-			    // code to run if the request fails;
-			    // the raw request and status codes are
-			    // passed to the function
-			    error : function(xhr, status) {
-			        alert('Sorry, there was a problem!');
-			    },
-			 
-			    // code to run regardless of success or failure
-			    complete : function(xhr, status) {
-			        alert('The request is complete!');
-			    }
-			});
-			
 			/*				
 				$.fn.load
 				The $.fn.load method is unique among jQuery’s Ajax methods in that it is called on a selection. The $.fn.load method fetches 
@@ -137,13 +101,142 @@
 				2	  	alert('Content updated!');
 				3	});
 			*/
-		})			
+			/**/
+				
+//			$(this).ajaxStart(function() { $('div:eq(1)').html('ajax starting...'); });
+//			$(this).ajaxStop(function() { $('div:eq(1)').html('ajax ending...'); });
+			$(this).on('ajaxStart', (function() { $('div:eq(1)').html('ajax starting00...'); }))
+				.on('ajaxStop', (function() { $('div:eq(1)').html('ajax ending00...'); }));
+		    /*$.ajaxSetup( {
+						contents: {
+							mycustomtype: /mycustomtype/
+						},
+						converters: {
+							"mycustomtype json": function( result ) {
+								// Do stuff
+								console.log('do stuff:' + result);
+								var newresult = {name : 'yangsong'};
+								return newresult;
+							}
+						}
+				});
+			*/       
+			var myData = { id : 1, type : 'click' };
+			$('#btn').on('click', function(){
+					    
+				$.ajax({
+					/*context : {
+						
+					}, beforeSend 里的 this 或者 $.ajax 内部函数中 this 都指向这个 context 对象, 可以用系统的默认值, 也可以自己配置, 我这儿写了个空*/
+					beforeSend : function(xhr){
+						console.log('beforeSend: xhr');
+						console.log(xhr);
+						//to modify the response content-type header:
+						//xhr.overrideMimeType( "text/plain; charset=x-user-defined" );
+						$('div:eq(1)').html('ajax starting01...');
+						console.log(this);  // Object { } 一定要注意这个 this 所包含的信息相当重要
+					},
+					
+				    // the URL for the request
+				    url : '/AjaxApp/ajax/test',
+				    
+				    global : false,//这样的话, $.ajax函数体外面的 ajaxStart等ajax相关事件不会被执行
+				 	
+				 	async : true, // default true - asynchronous false - synchronous
+				 
+				    // the data to send
+				    // (will be converted to a query string)
+				    //data : JSON.stringify(myData),
+				    data : myData,
+				 
+				    // whether this is a POST or GET request
+				    type : 'POST', // 'GET'
+				 
+				    // the type of data we expect back
+				    dataType : 'json',
+				    
+				    //contentType : 'application/json',
+				    
+				    // statusCode
+				    statusCode : {
+				    	200 : function() {
+				    		console.log('ajax ending statuscode 200');
+				    	},
+				    	404 : function() {
+				    		console.log('ajax ending statuscode 404');
+				    	} 
+				    },
+				 
+				    // code to run if the request succeeds;
+				    // the response is passed to the function
+				    success : function(json) {
+				        $('<h1/>').text(json.title).appendTo('body');
+				        $('<div class="content"/>')
+				            .html(json.html).appendTo('body');
+				    },
+				 
+				    // code to run if the request fails;
+				    // the raw request and status codes are
+				    // passed to the function
+				    error : function(xhr, status) {
+				        console.log('Sorry, there was a problem!' + xhr + ' | ' + status);
+				        console.log(xhr);
+				    },
+				 
+				    // code to run regardless of success or failure
+				    complete : function(xhr, status) {
+				        console.log('The request is complete!' + xhr + ' | ' + status);
+				        console.log('complete xhr: ');
+				        console.log(xhr);
+				    }
+				}).done(function(data, textStatus, jqXHR) {
+					console.log('done:' + data + '|' + textStatus + '|' + jqXHR);
+				}).fail(function(data, textStatus, jqXHR) {
+					console.log('fail:' + data + '|' + textStatus + '|' + jqXHR);
+				}).always(function(data, textStatus, jqXHR) {
+					console.log('always:' + data + '|' + textStatus + '|' + jqXHR);
+					//console.log(this);
+				});
+				
+				
+				
+			/* get JSON-formatted data from the server
+				$.getJSON('/AjaxApp/ajax/test?type=click', function(resp) {
+				    $.each(resp, function(k, v) {
+				        console.log(k + ' : ' + v);
+				    });
+				});	
+			*/
+				console.log('jsonp');
+				$.ajax({
+					url : 'http://query.yahooapis.com/v1/public/yql',
+					// the name of the callback parameter,
+					// as specified by the YQL service
+					jsonp : 'callback',
+					// tell jQuery we're expecting JSONP
+					dataType : 'jsonp',
+					// tell YQL what we want and that we want JSON
+					data : {
+						q : 'desc yql.queries',
+						diagnostics : true,
+						format : 'json'
+					},
+					// work with the response
+					success : function(response) {
+						console.log(response);
+					}
+				});
+			
+			});//click function
+			
+			
+			
+		})// document.ready			
 		
 	</script>
 	<body>
-		<div style='display:none'><span>0</span> button #0 clicks.</div>
-		<div style='display:none'><span>1</span> button #1 clicks.</div>
-		<div class='old' name='div3'><span>3</span> button #3 clicks.</div>
-		<div class='old' name='div4'><span>4</span> button #4 clicks.</div>
+		<input type='hidden' name='type' value='click' />
+		<div class='old' name='div3'><span>3</span> <button id='btn' >button #3 clicks</button></div>
+		<div class='old' name='div4'><span>4</span> ajax indicator</div>
 	</body>
 </html>
