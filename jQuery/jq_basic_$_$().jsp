@@ -151,7 +151,7 @@
 			$('<div/>', {
 				id : 'myDiv',
 				html : 'This is a div'
-			}).appendTo('body');
+			}).appendTo('body'); 	// 创建一个id为myDiv，html为'This is a div'的 DIV
 			$('#myDiv').data('keyName', { foo : 'bar' });
 			console.log($('#myDiv').data('keyName')); // Object { foo="bar" }
 			
@@ -164,18 +164,21 @@
 				
 				你可以存储与某个元素相关的任意类型数据，这个好处在你开发一个复杂的应用时会体现出来。出于这节课的目的，我们大多会用 $.fn.data 来存储这些元素的引用。
 				举个例子，我们可能想在list item 和某个 div 之间建立关系，我们可以在和每一个list item交互时进行，但是一个好的解决方案一次性建立起来，而且用 $.fn.data 
-				存储一个关联 list item 和这个 div 指针 [如下例为 ‘contentDiv’]。				
+				存储一个关联 list item 和这个 div 指针 [如下例为 ‘contentDiv’]。	另外可参见：jq_best_practice.jsp 中 jQuery.data			
 				
 			*/
 			$('#myList li').each(function() {
 				var $li = $(this), $div = $li.find('div.content');//'div.content' !== 'div .content',中间没有空格！！！
-			    $li.data('contentDiv', $div);
+			    $li.data('contentDiv', $div);				
 			});
 			 
 			// later, we don't have to find the div again;
 			// we can just read it from the list item's data
 			var $firstLi = $('#myList li:first');
-			console.log($firstLi.data('contentDiv').html('new content')); 
+			console.log($firstLi.data('contentDiv').html('new content')); // Object[div.content]
+			console.log($firstLi.html('changed00')); // Object[li] 和上面一个相比，可以看出返回的对象是不同的，上面那个就是已经通过 $li.data 存储起来的
+			
+			
 			// In addition to passing $.fn.data a single key-value pair to store data, you can also pass an object containing one or more pairs. 						
 		})			
 	</script>

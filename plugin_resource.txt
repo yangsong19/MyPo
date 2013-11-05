@@ -6,3 +6,4 @@
 3	http://api.jquery.com/Ajax_Events/ 
 4	http://api.jquery.com/jQuery.ajax/
 5	http://jqfundamentals.com/legacy#chapter-2
+6	https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call	about JavaScript Technology ,this is a powerful and huge benefits and Official Documents
