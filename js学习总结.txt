@@ -1,4 +1,22 @@
 	学习js的一些总结
+	
+2013-11-08
+	1	理解Javascript_01_理解内存分配	http://www.cnblogs.com/fool/archive/2010/10/07/1845226.html
+	2	Js中Prototype、__proto__、Constructor、Object、Function关系介绍		http://www.blogjava.net/heavensay/archive/2013/10/20/405440.html
+		这里面有一张很给力的图片，由现象到经过图形线条连接，找出了规律，极棒。这让我有种感觉，心中所有的憋屈一下全都释放掉了的快感！
+		作者总结如下	--->
+		通过上图Function、Object、Prototype关系图中，可以得出一下几点	--->
+
+		所有对象所有对象，包括函数对象的原型链最终都指向了Object.prototype，而Object.prototype.__proto__===null，原型链至此结束。
+		a. Animal.prototype是一个普通对象。
+		b. Object是一个函数对象，也是Function构造的，Object.prototype是一个普通对象。
+		c. Object.prototype.__type__指向null。
+		d. Function.prototype是一个函数对象，前面说函数对象都有一个显示的prototype属性，但是Function.prototype却没有prototype属性，即Function.prototype.prototype===undefined，所有Function.prototype函数对象是一个特例，没有prototype属性。
+		e. Object虽是Function构造的一个函数对象，但是Object.prototype没有指向Function.prototype，即Object.prototype!==Function.prototype。
+		
+		上图中，红色箭头表示函数对象的原型的constructor所指向的对象。
+		a. 注意Object.constructor===Function；本身Object就是Function函数构造出来的        
+		b. 如何查找一个对象的constructor，就是在该对象的原型链上寻找碰到的第一个constructor属性所指向的对象。
 
 2013-11-04
 	http://www.w3school.com.cn/js/js_objects.asp w3c学习教程
