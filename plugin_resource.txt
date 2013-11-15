@@ -8,4 +8,5 @@
 5	http://jqfundamentals.com/legacy#chapter-2
 6	https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function/call	about JavaScript Technology ,this is a powerful and huge benefits and Official Documents
 7	https://developer.mozilla.org/en-US/docs/Web/JavaScript/New_in_JavaScript/1.7?redirectlocale=en-US&redirectslug=JavaScript%2FNew_in_JavaScript%2F1.7  
-	<script type="application/javascript;version=1.7">	JavaScript 1.7 新语法，为了支持新语法，需要这样声明
+	<script type="application/javascript;version=1.7">	JavaScript 1.7 新语法，为了支持新语法，需要这样声明，但似乎google explorer不支持这些语法，所以开发时要注意了
+8	http://blogs.sitepointstatic.com/examples/tech/filedrag/1/index.html javascript实现文件拖拽上传及下载	

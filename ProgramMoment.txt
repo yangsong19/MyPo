@@ -1,4 +1,24 @@
 		***编程心得***
+2013-11-14	--->
+1	每次自己遇到问题时，也仅仅满足于遇到问题，发现问题而已，从来没有主动去思考如何给出解决方案，即所谓的自主探究，分析问题的能力极差！！！
+	今天遇到的问题是这样的：有个需求，要把某个 channelId 为 ver-10 的 channel 的 title 给修改一下，以前有个工具 create channel on pcc 可以完成相应功能。但是之前做的有个缺陷
+	却一直没有发现，涉及三张表 channel pcc_channel pcc_feed ，以前的联合查询条件是这样的
+	select pc.channel_id,c.title,f.url,f.source_name,f.feed_id from pcc_feed  f, pcc_channel pc, channel c where f.feed_id=pc.feed_id and c.channelId=concat('pcc-',pc.channel_id) order by pc.channel_id desc		
+	其中 c.channelId=concat('pcc-',pc.channel_id) 即按 channelId 来进行联合查询的条件，这样有些 channel 表里的 channelId 不符合 pcc-123 这种形式的就查不出来了，故需要修改成下面：
+	select c.channelId, pc.channel_id,c.title,f.url,f.source_name,f.feed_id from pcc_feed  f, pcc_channel pc, channel c where f.feed_id=pc.feed_id and substr(c.base,5)=pc.channel_id order by pc.channel_id desc
+	这里面充分用到了 channel 表里的一个备用字段  base ，记录了 pcc_channel 表里的 channel_id 信息，这样就把问题解决了，也即是修改一下 sql 语句的查询条件而已。
+		
+		
+2013-11-13	--->
+1	当程序中有些地方出错了，搞不定时，还有一种不错的参考思路，那就是去查相应的API，甚至是原代码。别一出错，就急了，手忙脚乱的样子。错误，都有一个源头，找出来，然后对症下药，
+	大多数时候都可以解决的。
+2	jspsmart.jar用来上传文件用的一个小工具，但是会有乱码的问题，该如何解决呢。其中就可以修改原代码中的upload方法，在字符串编码时加上“utf-8”
+3	【context】这个术语解读为“上下文”，如果在开发或者是做事时对这个概念，有一个清醒的认识，无疑将会起到事半功倍的作用。很多情况下，我们都忽略某个变量或对象或容器或组件或技术
+	或思想或方法或代码所处的“上下文”，导致周围环境变化了，我们都不知道，都没有意识到，还在原来自以为是的环境下进行某种操作或思考。最经典的例子就是，当时在用bootstrap这个前端
+	css工具，用javascript控制一个带有小叉的div的显隐时，出现一些莫名其妙的问题。原来是我们若点击了上面自带的小叉时，bootstrap内部处理机制是把这个div直接给从页面移除了，而不是
+	设置其display=none！不过还有一种情况是，我们自己受限于自己的专业能力，在很多问题上由于没有深入全面研究，处于一知半解的状态，也很难会考虑某些异常情况。不断提升各种能力，就
+	显得更重要。然而，脑袋里的一些正确意识，却毫无疑问地可以帮助我们少走很多弯路。
+		
 2013-11-06	--->
 1	JavaScript 中的每个变量都会绑定到一个对象身上，即所谓这个变量的作用域 scope ，这是通过 var 关键字定义时确定的。当然也有一些情况，比如对象 {} 内部的变量，可以不用 var 
 	显式的声明等。
@@ -45,13 +65,13 @@
 	把代码质量提升一个档次，给人一种全新的感觉呢？？？不是做不到，是亚根儿，你就不想着去做，不想着改变。改变其实很简单，只要去尝试，出错了，也是一种经验。。。时间久
 	了，你就会发现一套自动纠错的机制和套路。不要固步自封！！！
 2	别人的东西，你不经过消化吸收转化成自己的东西，就永远不是你自己的东西，永远是别人的东西
-	有个方法可以尝试：勤做笔记，多反思，常总结，
+	有个方法可以尝试：勤做笔记，多反思，常总结
 
 		
 2013-10-21	--->
 	北京尚学堂视频教程下载地址      http://www.bjsxt.com/shipinxiazai/
-	私塾视频教程下载地址        http://sishuok.com/
-	传智博客视频教程下载地址    http://www.itcast.cn/channel/video.shtml
+	私塾视频教程下载地址            http://sishuok.com/
+	传智博客视频教程下载地址        http://www.itcast.cn/channel/video.shtml
 	张孝详视频教程下载地址          http://www.verycd.com/topics/239368/
 	
 2013-10-16	--->
