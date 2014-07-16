@@ -1,9 +1,418 @@
 		***编程心得***
+2014-07-07	--->
+
+	在修复一个页面上的问题：jquery-ui 下拉列表会随着鼠标滚轮的滑动，出现错位的现象。
+	Fix: 禁止鼠标滚轮事件，然后在这个对话框消失后再还原这个事件。
+		 当时其实可以取消默认事件及冒泡行为的 e.preventDefault(),e.stopPropagation().但是会带来另外一个问题。
+		 由于之前出现了一个大问题，即 jquery-dialog 在初始化弹出的时候，里面有个 position 属性由于 js 冲突，
+		 失效了。位置就不正确，后来用事件冒泡，对其父层进行了控制，即用到了冒泡，这个地方不能禁用了。所以只能
+		 禁用鼠标滚轮事件了。
+	
+var keys = [37, 38, 39, 40];  
+  
+function preventDefault(e) {  
+	e = e || window.event;  
+	if (e.preventDefault)  
+		e.preventDefault();  
+	e.returnValue = false;  
+}  
+
+function keydown(e) {  
+	for (var i = keys.length; i--;) {  
+		if (e.keyCode === keys[i]) {  
+			preventDefault(e);  
+			return;  
+		}  
+	}  
+}  
+
+function wheel(e) {  
+	preventDefault(e);  
+}  
+
+function disable_scroll() {  
+	if (window.addEventListener) {  
+		window.addEventListener('DOMMouseScroll', wheel, false);  
+	}  
+	window.onmousewheel = document.onmousewheel = wheel;  
+	document.onkeydown = keydown;  
+}  
+
+function enable_scroll() {  
+	if (window.removeEventListener) {  
+		window.removeEventListener('DOMMouseScroll', wheel, false);  
+	}  
+	window.onmousewheel = document.onmousewheel = document.onkeydown = null;  
+}  
+	
+
+	
+2014-07-01 	--->
+
+	一个棘手的问题来的时候，为了找到解决方案，之前相关的正确行为可能也被质疑。事实上是这种做法是不对的，而仅仅是个全新的问题罢了，与其它无关的。
+	但是，我们养成一个好习惯是必要的。
+	从头到尾，重新审视流程的每一个环节，特别是重要的环节。
+	
+	自己的代码自己都没有认真负责的测试通过，怎么能交给别人【QA】审核呢，这种行为叫作不负责任。
+		
+		
+2014-06-19	--->
+
+	佛教学院【为什么在国外那么受欢迎, 而且是专门的学术研究机构? 】
+	
+	总是觉得自己做的对，先入为主，偏执己见。冷静，听取别人把问题说完，自己再说，不迟，而且避免了很多问题。
+		
+		
+2014-06-11	--->
+
+	if-else 语句，根据条件出现的概率大小，把最可能会执行的放最前面，命中率会更高，这样代码的效率相应也会提升。
+		
+2014-06-10	--->
+
+	改变可以发生在任何一个环节。不要固定自己的思路，否则可能错过很多简捷的解决方案。
+	mysql -uroot -p11202004ok7lip -h66.160.159.83 blueapple --default-character-set=utf8
+	这样连接数据库可防止出现字符乱码问题。
+	而且你所使用的客户端环境也必须要统一设置为 utf-8 。比如我使用的 XShell 。
+	数据库，及表都应该注意是不是 utf-8 这种编码的。
+	只有上面这几步才保证不会出现问题。
+		
+2014-05-26	--->
+
+	要有 【保护现场】 的意识，因为下一刻，人的记忆会出现差错，更别说随着时间的流逝，记忆变得更加模糊了，再去回想的时候，很多细节都会消失甚至关联上其它不相干的东西。
+	按照条件反向推理的意识也应该培养起来
+	
+	获取被选中的下拉列表的值，由于中间的操作导致下拉列表的内容发生变化，这时再把原来选中的状态还原。
+	var storeChannelId = $('#channel_id').val();
+	$('#channel_id').find("option[value='"+storeChannelId+"']").attr("selected",true);
+	
+2014-05-23	--->
+
+	1	$.fn.serializeObject = function() {
+			var o = {};
+
+			var a = $(this).serializeArray();
+			$.each(a, function() {
+				if (o[this.name]) {
+					if (!o[this.name].push) {
+						o[this.name] = [o[this.name]];
+					}
+					o[this.name].push(this.value || '');
+				} else {
+					o[this.name] = this.value || '';
+				}
+			});
+			return o;
+		};
+
+	之前对表单序列化只有 serializeArray 方法，没有 serializeObject 方法，使用这个方法时要注意的问题：
+		处理 serializeObject 返回的对象里面的每个值时，如果使用 Array.join 等方法时，必须使用 Array.isArray(name) 来判断是不是数组，因为可能是字符串。
+
+	2	Boolean 返回 false 的情况：
+		0
+		-0
+		""
+		var a,Boolean(a)
+		null
+		false
+		10 / ""; (NaN)
+
+	3	global funciton:
+		parserInt --- 鲜为人知的用法及功能 【其实还停留在 java 里的语法结构及功能，觉得就是把数值字符串转化成数值而已！！！】
+			var a = parseInt("10") + "<br>";      // 10
+			var b = parseInt("10.00") + "<br>";   // 10
+			var c = parseInt("10.33") + "<br>";   // 10
+			var d = parseInt("34 45 66") + "<br>";// 34
+			var e = parseInt(" 60 ") + "<br>";	  // 60
+			var f = parseInt("40 years") + "<br>";// 40
+			var g = parseInt("He was 40") + "<br>";// NaN
+
+			var h = parseInt("10",10)+ "<br>";
+			var i = parseInt("010")+ "<br>";
+			var j = parseInt("10",8)+ "<br>";
+			var k = parseInt("0x10")+ "<br>";
+			var l = parseInt("10",16)+ "<br>";
+2014-05-19	--->
+
+	1	URLDecoder.decode(cell.getRichStringCellValue().toString(), "utf-8") 后端，这个可以解决中文乱码问题。
+	2	下面这个insert on duplicate key update 语句，之前由于没有 ct_staging_content_id 这个字段导致每次都是插入，对于存在的记录更新不了
+		而且这个语句里面有些字段的类型设置的有问题，比如 Not Null default ''这个设置，在执行插入操作的时候，会报 column is null的错误，必须把 Not Null 这个限制去掉		
+		而且 duration varchar(10) 但是实际插入的时候长度超出了10，导致报错而入不了库，糟糕的是，后台没有打印错误信息。调试了那么久都没有搞定！！！======》》》
+		《《《《   这是为什么呢？原来我在本地测试之所以能够通过，是因为我本地的那个 【解析视频】 的工具报错了，duration 这个字段值没有被设，但是在qa2上，由于是正常的
+		这个值被设进去了，但是超过其长度了。
+	3	if(month >= 0 && month <= 9)
+		month = "0"+month;
+	4	把源码直接 copy 到 src 目录下，就会生成相应的包加类
+	5	java 里面的匿名构造函数，直接由一对花括号括起来的代码块儿。不同于　static 代码块儿
+	6	var loop_length = 1;
+		if(!$('#loop_length').val()) {
+			loop_length = 1;
+		} else {
+			loop_length = $('#loop_length').val() + 1;
+		}
+		这个地方如果不加判断，页面上布局乱掉了，而且loop_length一直是 NaN，【因为页面上 id=loop_length 这个元素还没有生成】，获取不到。
+	7	 var month = parseInt(myDate.getMonth()) + 1;  
+		if(month >= 0 && month <= 9)
+			month = "0"+month;
+		如果写成这个样子 if(0 =< month && month <= 9) 一直报 TypeErrorException 等啥子错误。javascript 里作判断时变量必须写在操作符前面，操作符右边是常量值
+	8	if(Array.isArray(formData.product)) {
+			formData.product = formData.product.join('|');
+		}
+		如果不加这个判断条件，formData.product 有可能是个字符串，就报错了。报什么不能 call join 方法呀啥子的。
+	9	还有一些关键字，比如 include,private 等在 java 里如果被设置成字符串放进 json 对象里传到前台展示的时候，会一直传不过去。因为 java 在后台把这个特殊字符串 include 给处理掉了
+	10	当从一个环境迁移到另外一个环境的时候，必然会带出一些新的情况出来，如果自己不严格测试，百分百出错。所以你必须在一个干净的环境里重新验证一下，确保没有问题。
+		一个bug的解决意味着牵连出一个新的bug的诞生，就在这种循环往复，冲突，缓和中持续编码。
+		在本地测试和在qa,staging,online上测试的效果可能十分不一样。
+		往往自己假设一种情况存在，然后顺序思路去进行编程，结束后，测试时，会发现另外一种情况在反方向冒出来了。所谓的成立条件无非是在一种错误的不全面的假设下建立的。如果你的上下文变了，
+		可能就颠倒了。
+		特别是编程时，前后的逻辑是紧密相连的，不要只走一步只考虑到当前一步，必须要把前面所有的情况综合起来考虑呀，天！
+	11	当时觉得metadata这一块儿不重要，现在看来却成了一个亮点儿了。真是悲喜难料，祸福难测。
+			
+	<insert id="insertStagingContent" parameterClass="sc">
+		insert into ct_staging_content(ct_staging_content_id,channelid, video_file_name, thumbnail_file_name, video_qc, thumbnail_qc, metadata_qc, thumbnail_qc_comments, video_qc_comments, metadata_qc_comments,
+			 STATUS, source, feed_id, storage_id, cid, duration, iconUrl, pageurl, clip_title, genre, original_dubbed, subgenre, LANGUAGE, movie_album_show_name,
+			 episode_no, geo_relevance, age_group, gender_relevance, synopsis_description, actor, actress, director, music_driector, singer, performer,	year_of_release,
+			 producer, writer, mood, lyricist, broadcaster, god,festival_event, temple, editor_rating, georights, adult_nonadult, adult_explicit_lyrics, adult_explicit_visual,
+			 adult_rating, fullDescription, url, hiresurl, youtube_streaming_url, ext_varchar_5, pagehash, video_file_ext, thumbnail_file_ext) 
+		values(#ct_staging_content_id#,#channelid#, #video_file_name#, #thumbnail_file_name#, #video_qc#, #thumbnail_qc#, #metadata_qc#, #thumbnail_qc_comments#, #video_qc_comments#, #metadata_qc_comments#,
+			 #status#, #source#, #feed_id#, #storage_id#, #cid#, #duration#, #iconUrl#, #pageurl#, #clip_title#, #genre#, #original_dubbed#, #subgenre#, #language#, #movie_album_show_name#,
+			 #episode_no#, #geo_relevance#, #age_group#, #gender_relevance#, #synopsis_description#, #actor#, #actress#, #director#, #music_driector#, #singer#, #performer#, #year_of_release#,
+			 #producer#, #writer#, #mood#, #lyricist#, #broadcaster#, #god#, #festival_event#, #temple#, #editor_rating#, #georights#, #adult_nonadult#, #adult_explicit_lyrics#, #adult_explicit_visual#,
+			 #adult_rating#, #fullDescription#, #url#, #hiresurl#, #youtube_streaming_url#, #ext_varchar_5#, #pagehash#, #video_file_ext#, #thumbnail_file_ext#)
+		ON DUPLICATE KEY UPDATE 
+				updatetime=now()
+		 	<isNotNull prepend="," property="thumbnail_file_name">   
+		 		thumbnail_file_name=#thumbnail_file_name#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="video_qc">   
+		 		video_qc=#video_qc#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="thumbnail_qc">   
+		 		thumbnail_qc=#thumbnail_qc#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="metadata_qc">   
+		 		metadata_qc=#metadata_qc#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="thumbnail_qc_comments">   
+		 		thumbnail_qc_comments=#thumbnail_qc_comments#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="video_qc_comments">   
+		 		video_qc_comments=#video_qc_comments#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="metadata_qc_comments">   
+		 		metadata_qc_comments=#metadata_qc_comments#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="status">   
+		 		status=#status#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="source">   
+		 		source=#source#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="feed_id">   
+		 		feed_id=#feed_id#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="storage_id">   
+		 		storage_id=#storage_id#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="cid">   
+		 		cid=#cid#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="duration">   
+		 		duration=#duration#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="iconUrl">   
+		 		iconUrl=#iconUrl#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="pageurl">   
+		 		pageurl=#pageurl#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="clip_title">   
+		 		clip_title=#clip_title#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="genre">   
+		 		genre=#genre#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="original_dubbed">   
+		 		original_dubbed=#original_dubbed#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="subgenre">   
+		 		subgenre=#subgenre#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="language">   
+		 		language=#language#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="movie_album_show_name">   
+		 		movie_album_show_name=#movie_album_show_name#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="episode_no">   
+		 		episode_no=#episode_no#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="geo_relevance">   
+		 		geo_relevance=#geo_relevance#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="age_group">   
+		 		age_group=#age_group#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="gender_relevance">   
+		 		gender_relevance=#gender_relevance#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="synopsis_description">   
+		 		synopsis_description=#synopsis_description#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="actor">   
+		 		actor=#actor#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="actress">   
+		 		actress=#actress#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="director">   
+		 		director=#director#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="music_driector">   
+		 		music_driector=#music_driector#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="singer">   
+		 		singer=#singer#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="performer">   
+		 		performer=#performer#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="year_of_release">   
+		 		year_of_release=#year_of_release#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="producer">   
+		 		producer=#producer#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="writer">   
+		 		writer=#writer#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="mood">   
+		 		mood=#mood#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="lyricist">   
+		 		lyricist=#lyricist#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="broadcaster">   
+		 		broadcaster=#broadcaster#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="god">   
+		 		god=#god#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="festival_event">   
+		 		festival_event=#festival_event#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="temple">   
+		 		temple=#temple#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="editor_rating">   
+		 		editor_rating=#editor_rating#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="georights">   
+		 		georights=#georights#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="adult_nonadult">   
+		 		adult_nonadult=#adult_nonadult#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="adult_explicit_lyrics">   
+		 		adult_explicit_lyrics=#adult_explicit_lyrics#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="adult_explicit_visual">   
+		 		adult_explicit_visual=#adult_explicit_visual#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="adult_rating">   
+		 		adult_rating=#adult_rating#	
+ 			</isNotNull>
+ 			
+ 			<isNotNull prepend="," property="fullDescription">   
+		 		fullDescription=#fullDescription#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="url">   
+		 		url=#url#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="hiresurl">   
+		 		hiresurl=#hiresurl#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="youtube_streaming_url">   
+		 		youtube_streaming_url=#youtube_streaming_url#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="ext_varchar_5">   
+		 		ext_varchar_5=#ext_varchar_5#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="pagehash">   
+		 		pagehash=#pagehash#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="thumbnail_file_ext">   
+		 		thumbnail_file_ext=#thumbnail_file_ext#	
+ 			</isNotNull>
+ 			<isNotNull prepend="," property="video_file_ext">   
+		 		video_file_ext=#video_file_ext#	
+ 			</isNotNull>
+	</insert>
+		
+2014-05-13	--->
+
+	为什么考虑问题那么死劲，上下文已经变化，有些情况不再适用，需要修改逻辑了
+	适应变化，唯有思考，变通
+		
+2014-05-08	--->
+
+	console.info(${user.paid}); console.info('${user.paid}'); 这两种写法都可以, 之前没有见过这种写法
+		
+		
+2014-05-07	--->
+
+	Life is a dead Loop with no break condition.
+
+	this DOM element
+	-> $(this) jQuery object
+	
+	JavaScript 里面的类与对象的概念及其属性操作, 越到后来越模糊. 和 java 面向对象编程的规则怎么搞的不对位了
+	【基本概念】
+	【交叉循环 复合循环】
+
+	其实就涉及到三步：
+	1	初始化条件, 状态
+	2	按照给定的规则, 寻找解决方案的过程
+	3	回头重新审定是否达到最初设定的目标
+	
+	<!--
+		默认情况下，class的优先级小于id，所以，第二行中即使用class重定义了自身样式，也无法生效，所以继承父级属性，这行字还是红色！
+	　　但是，第三行中，用了important提升优先级（或看成强制重定义），所以这里的css得以生效，这行字变为了蓝色！
+		by default, class selector priority lower than id selector, so, though .important_false define its sytle blue, but doen't 
+		take effect, inherit its parent level #Box div, display red. .important_true upgrade its priority by !important style, at 
+		last it display blue.
+	-->
+
+	<style>
+		#Box div{
+			 color:red;
+		}
+		.important_false{
+			 color:blue;
+		}
+		.important_true{
+			 color:blue !important;
+		}
+	</style>
+
+	<div id="Box">
+		<div class="important_false">not use css style 'important'</div> 【display red】
+		<div class="important_true">use css style 'important'</div> 【display blue】
+	</div>
+			
 2014-05-06	--->
 
+	if("partner" != "${user.role}"){
+		$("#div_tabs").hide();
+		showTabs(false, 0, '')
+	}
+	上面这段代码在 script if 语句里用 ${user.role} 这种写法, 能想明白其中的道理不.
+
+	所有 enum 关键字声明的类都默认继承了 java.lang.Enum 类, 而 int, char, short, float, double, byte 等等这些
+	的类字节码中 isPrimitive 为 true, [Integer.TYPE]
+
 	真的是这样, 可能你在某个地方看的一句不经意的话, 却悄悄地打开了你心中某个神秘的所在, 唤醒了潜伏很久的能力, 
-	然后开始创造奇迹, 仅仅从一个点开始, 不断潜入问题的深处, 层层剥离迷惑的外衣, 揭开刚开始时若即若离的支离破碎
-	地幻象.
+	然后开始创造奇迹, 仅仅从一个点开始, 不断潜入问题的深处, 层层剥离迷惑的外衣, 揭开刚开始时若即若离支离破碎
+	的幻象.
 	
 	我当时确定自己用 反射 重写一个类的 toString 方法,虽然搁浅一段时间, 后来却坚持把它做完了.
 	就像我在查 java 基础知识 三类八种 时, 为了确定这个体系里的所有基础类型, 然后想到如何区分它们与用户自定义的类
