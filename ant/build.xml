@@ -1,0 +1,47 @@
+﻿<?xml version="1.0"?> 
+
+<!-- 其实 build.xml 就是对某个java工程的 xml 描述, 也相当于一个独立的 java 类文件, 从中可以看到许多或者是可以抽象出来 类 的许多特性的东西, 比如 target就相当于一个函数方法, property就相当于一个类的属性 -->
+<!-- default 就是当没有指定 target name 时, 默认执行的 target; basedir 就是 ant 命令生成的目录或文件被放置的基准目录; . 表示当前 build.xml 文件所在的目录 -->
+<!-- unless 是验证指定的属性不存在, 才会执行这个 target -->   
+<!-- depends 列出当前这个target所依赖的那些 target, 只有依赖的那些 target成功执行完成后才会执行当前 target -->                    
+<!-- if 是验证指定的属性存在, 才会执行这个 target -->
+<project name="studyProject" basedir="." default="learning">  
+	
+	<property file="build.properties"/>
+	<property name="name" value="amigo"/>
+      
+	<target name="learning" depends="targetA" unless="amigo">    
+		<description>A Depends Example!</description>            
+		<echo message="Base dir is - ${basedir}"/>    
+		<echo message="Propery From External File - test.dir:${test.dir}" />
+		<echo message="Propery From Internal File - name:${name}" />
+	</target> 
+	
+	<target name="targetA" if="ant.java.version">         
+		<echo message="Hello,Amigo" file="logs/system.log" append="true" />
+		<echo message="Java Version: ${ant.java.version}"/>        
+	</target> 
+	
+	<target name="dirMk">
+		<mkdir dir="build" />
+		<mkdir dir="logs" />
+		<mkdir dir="test/ys" />
+	<!-- <touch file="ys.txt" />  create a new file. -->
+	</target>
+	
+	<target name="dirCopy">
+		<!-- <copy file="ys.txt" tofile="test/ys/ys.txt"/>  tofile should point the accurate file name -->
+		<!-- <copy file="ys.txt" todir="test/ys"/> -->
+		<copy todir="build/test">
+			<fileset dir="test"/>
+		</copy>
+	</target>
+	
+	<target name="dirDel">
+		<!-- <delete file="build/test/ys/ys.txt"/> -->
+		<!--<delete includeEmptyDirs="true">
+			<fileset dir="build" includes="**/*.*"/>   delete all files in build directory
+		</delete>-->
+	</target>
+
+</project>

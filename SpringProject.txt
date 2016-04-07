@@ -1,0 +1,382 @@
+
+
+2015/3/17
+
+hibernate 有链式查询结构; 
+jquery 函数的链式结构写法;
+filter, interceptor; 的这种结构, 一个大循环或死循环, 线性结构
+
+
+
+2015/3/10
+
+
+This is the most confusing keyword in Hibernate, at least i took quite a long time to understand it. The “inverse” keyword is always declare in one-to-many 
+and many-to-many relationship (many-to-one doesn’t has inverse keyword), it means which side is responsible to take care of the relationship.
+
+在 hibernate 里最让人困惑的关键词 “inverse”, 经常会用在 一对多 和 多对多 关系声明中 [多对一没有这个关键词], 它表示由哪一端负责维护这种 一对多 多对多 的关系
+维护这种关联关系的本质就是是否会把相关关联信息插入到数据库, 还是 Mkyong 说的对, inverse 这个关键词应该改成 【relation-owner】 即关系拥有者或关系所有者, 重在决策, 发出指令
+
+这种关联关系是通过 【集合】 这种容器来体现出来的, 所以 inverse 这个关键词属性应该放在集合元素内进行设置
+
+方向性, 主从受控
+
+【cascade】 重在操作这个行为
+
+接受一个新事物消化吸收所需的时间决定了能力的层次, 这些都涉及到基本功是不是扎实, 同时也反应出一个人对问题抽象归纳到已知模型的理解能力, 道理都是相通的, 只不过为了
+适应特定的场景而改变了其展现形式
+
+
+Inverse和cascade是Hibernate映射中最难掌握的两个属性。两者都在对象的关联操作中发挥作用。
+1．明确inverse和cascade的作用 
+inverse 决定是否把对对象中集合的改动反映到数据库中，所以inverse只对集合起作用，也就是只对one-to-many或many-to-many有效（因 为只有这两种关联关系包含集合，而one-to-one和many-to-one只含有关系对方的一个引用）。
+cascade决定是否把对对象的改动反映到数据库中，所以cascade对所有的关联关系都起作用（因为关联关系就是指对象之间的关联关系）。
+2.inverse属性 ：inverse所描述的是对象之间关联关系的维护方式。 
+inverse只存在于集合标记的元素中 。Hibernate提供的集合元素包括<set/> <map/> <list/> <array /> <bag /> 
+Inverse属性的作用是：是否将对集合对象的修改反映到数据库中。 
+inverse属性的默认值为false，表示对集合对象的修改会被反映到数据库中；inverse=false 的为主动方，由主动方负责维护关联关系。 
+inverse=”true” 表示对集合对象的修改不会被反映到数据库中。
+ 为了维持两个实体类（表）的关系，而添加的一些属性，该属性可能在两个实体类（表）或者在一个独立的表里面，这个要看这双方直接的对应关系了： 这里的维护指的是当主控放进行增删改查操作时，会同时对关联关系进行对应的更新。
+   一对多： 该属性在多的一方。应该在一方的设置 inverse=true ，多的一方设置 inverse=false（多的一方也可以不设置inverse属性，因为默认值是false），这说明关联关系由多的一方来维护。如果要一方维护关 系，就会使在插入或是删除"一"方时去update"多"方的每一个与这个"一"的对象有关系的对象。而如果让"多"方面维护关系时就不会有update 操作，因为关系就是在多方的对象中的，直指插入或是删除多方对象就行了。显然这样做的话，会减少很多操作，提高了效率。
+注： 
+      单向one-to-many关联关系中，不可以设置inverse="true",因为被控方的映射文件中没有主控方的信息。
+   多对多： 属性在独立表中。inverse属性的默认值为false。在多对多关联关系中，关系的两端 inverse不能都设为false,即默认的情况是不对的，如果都设为false,在做插入操作时会导致在关系表中插入两次关系。也不能都设为 true，如果都设为true,任何操作都不会触发对关系表的操作。因此在任意一方设置inverse=true，另一方inverse=false。
+   一对一： 其实是一对多的一个特例,inverse 的设置也是一样的，主要还是看关联关系的属性在哪一方，这一方的inverse=false。
+   多对一： 也就是一对多的反过来，没什么区别。
+2.cascade属性 
+cascade属性的作用是描述关联对象进行操作时的级联特性。因此，只有涉及到关系的元素才有cascade属性。 
+具 有cascade属性的标记包括<many-to-one /> <one-to-one /> <any /> <set /><bag /> <idbag /> <list /> <array /> 
+注意：<ont-to-many />和 <many-to-many />是用在集合标记内部的，所以是不需要cascade属性的。 
+级联操作：指当主控方执行某项操作时，是否要对被关联方也执行相同的操作。
+3.inverse和cascade的区别 
+作用的范围不同： 
+     Inverse是设置在集合元素中的。 
+   Cascade对于所有涉及到关联的元素都有效。 
+   <many-to-one/><ont-to-many/>没有inverse属性，但有cascade属性 
+执行的策略不同 
+   Inverse 会首先判断集合的变化情况，然后针对变化执行相应的处理。 
+   Cascade 是直接对集合中每个元素执行相应的处理 
+执行的时机不同 
+     Inverse是在执行SQL语句之前判断是否要执行该SQL语句 
+     Cascade则在主控方发生操作时用来判断是否要进行级联操作 
+执行的目标不同 
+     Inverse对于<ont-to-many>和<many-to-many>处理方式不相同。 
+   对于<ont-to-many>，inverse所处理的是对被关联表进行修改操作。 
+   对于<many-to-many>，inverse所处理的则是中间关联表 
+     Cascade不会区分这两种关系的差别，所做的操作都是针对被关联的对象。
+总结： 
+<one-to-many>中，建议inverse=”true”，由“many”方来进行关联关系的维护 
+<many-to-many>中，只设置其中一方inverse=”false”，或双方都不设置 
+Cascade，通常情况下都不会使用。特别是删除，一定要慎重。
+操作建议 
+  一般对many-to-one和many-to-many不设置级联，这要看业务逻辑的需要;对one-to-one和one-to-many设置级联。
+  many-to-many关联关系中，一端设置inverse=”false”，另一端设置为inverse=”true”。在one-to-many关联关系中，设置inverse=”true”,由多端来维护关系表
+
+
+
+2015/3/3
+
+也就是把自己衣服的款式尺寸艺术造型等等自己的特殊需求封装成个性化的需求, 打包给工厂进行生产处理得到合乎意愿的效果的这样一个过程.
+
+这就是工厂模式的概念: 其中最关键的地方就是打造自己的个性化需求. 至于 spring 工厂的内部工作原理, 那就是 aop, proxy 这些知识点加上其业务逻辑.
+
+
+2015/3/2
+
+sping aop 的概念总结:
+
+advice: 消息通告, 即要被拦截的类, 要被加入自己逻辑的类, 需要实现这些接口
+	MethodBeforeAdvice, AfterReturningAdvice, ThrowsAdvice, MethodInterceptor[这个是环绕通告 MethodInvacation.proceed]
+pointcut: 切点, 相当于通过配置只拦截某一类方法. 
+	其一:	通过方法名
+		<bean id="customerPointcut" class="org.springframework.aop.support.NameMatchMethodPointcut">
+			<property name="mappedName" value="printName" />
+		</bean>
+		<bean id="customerAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
+			<property name="pointcut" ref="customerPointcut" />
+			<property name="advice" ref="hijackAroundMethodBean" />
+		</bean>
+	其二:	通过正则
+		<bean id="customerAdvisor" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
+			<property name="patterns">
+				<list>
+					<value>.*Url.*</value>
+				</list>
+			</property>
+	 
+			<property name="advice" ref="hijackAroundMethodBean" />
+		</bean>
+advisor: 切面, 也即需要 pointcut, advice 这两个结合
+
+有没有 【点线面】 的赶脚!!
+
+
+
+2015-02-03
+
+
+都是有章法结构的, 这是一套必须完成并遵守的自证体系; 不管你从哪个角度进入这个体系, 也不论你困在哪个点儿上, 都不影响其存在性!!!
+
+spirng, struts2, hibernate, spring mvc, jsp-servlet 等这些都对自己有哪些启示??? 只有认真反思, 从单个知识点重返其体系结构, 
+才能看得清当前自己所处的层次, 以及困在什么地方? 每一次运用这种思维去审视都会有新的看法收获, 而且更清晰; 由点到线, 再线转面, 
+都要经得住考验耐心
+
+我的思路一直以来都是断裂的分散的, 从来不曾逃离跳脱出来作系统观, 这是一条更精炼更基本的内在逻辑线, 其它的一切都附着其上的展现形式:
+比如: struts2 的核心拦截器这是一条平时不关注的隐藏的内在逻辑线, 我们编程时不用关注, 程序也运行正常; 其实这条线是保证, 理清了处理异常会更得心应手.
+
+整合散念, 约束成力; 念力
+去伪存真, 洞悉核心; 定力
+
+
+之所以掌握不住所有细节的根本原因是还没有找到背后的那条隐藏起来的神秘的逻辑线！！！
+
+故此要给自己一个乐观健康的心理预设, 这些细节都是可以清晰地掌握住的
+
+知识不是越学越多, 而是越学越少, 关键就在于知识的迁移能力 - 比如 tomcat 如果真正的掌握了其配置及运行原理, 那么学习其它的 redis, nutch, hadoop 等
+道理都一样, 从哪里着手, 困难点在哪里等  -- 如果感觉越学越多, 越学越困难真的说明自己已经误入歧途方法失措了
+
+为什么说出自大师手笔的作品, 那么通俗易懂而且妙趣横生呢, 这是由他们所站的高度以及所掌握的细节决定的;  - 人生经历, 生死别离, 伤恨权谋等
+所以越到最后越感觉自己仿佛又回到了起始点, 这其实不是错觉而是最朴实的道理的首尾呼应和谐统一的自证
+
+
+2015-02-02
+
+
+
+上下文就是一个大容器, 里面再装一些子容器; 装载的顺序及策略不同; valuestack,request,session,parameters,attr,application 这些是暴露给我们使用的接口
+ActionContext 里面就装了上面这些对象!!! 
+
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+struts2 的核心和 spring mvc 是一致的; 从配置文件上就可以看出来.
+struts2 的核心拦截器 org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter 的原理模拟过程:
+DefaultActionInvocation -> defaultStack 先执行这个配置文件 struts-default.xml 默认的拦截器栈, 然后再执行我们自己的那个 action
+
+struts2 的表达能力很强, 之前的远程注入问题也是带来的问题:
+OGNL表达式和struts标签的整合使用,及OGNL表达式的技术要点
+ 
+
+使用OGNL表达式获取
+ * appliaction : #appliaction.username 或者 #application['username'] ，相当于appliaction.getAttribute("username");
+ * session : #session.username 或者 #session['username'],相当于session。getAttribute("username");
+ * request : #request.username 或者 #request['username'],相当于request.getAttribute("username");
+ * parameters: #parameters.username 或者 #parameters['username'],相当于 request.getParameter("username")
+ * attr : 按照pageContext--->request---->session--->application 顺序访问属性
+
+使用OGNL动态获取值：
+ * 如果是属性： 直接写属性的名字
+ * 如果是变量： 需要在变量的名字加个 #  的前缀。
+
+关于struts2标签和OGNL的几个注意事项：
+ * struts2 标签都支持动态数据访问，标签的属性都可使用ONGL表达式。struts 2 标签的属性都具有类型，
+ * 可以简单的分为两类：字符创类型和对象类型。<s:url>为字符串 ,<s:set> <s:property>为Object类型
+ * 对于字符串的属性，如果要访问动态数据，必须使用 %{...} 这样的语法，否则直接看成字符串常量。
+ * 对于Object的属性，将直接看成OGNL表达式求解，如果需要对对象类型的属性指定字符串常量，则必须在这个字符串常量外加上一对单引号或者%{'constant String'}这样的语法
+ * 如果对对象的属性使用了%{....}的语法，则语法会被忽略，而直接把内容当中 OGNL 表达式求解。eg:<s:property value="%{#myurl}" /> 和<s:property value="#url" />作用是相同的。
+ 
+ 
+ * 经验：如果分不清一个属性的值的类型是不是字符串类型的，可以直接加上 %{....}
+
+
+OGNL 表达式 和 EL 表达式的区别： 
+ * 在struts2 中，OGNL表达式必须和struts2标签配合使用，而不能单独使用，而EL表达式可以单独使用，不能和struts2标签配合使用。
+ * ActionContext 是struts2 中 OGNL 表达式的上下文，该上下文中有多个Map对象，eg：application , session等，包括ValueStack 。但是ValueStack是根对象，可以直接访问，其他对象访问需要加 # 前缀。
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    1.ValueStack是一个接口，在struts2中使用OGNL（Object-Graph Navigation Language）表达式实际上是使用
+        实现了ValueStack接口的类OgnlValueStack.它是ValueStack的默认实现类.
+    2.ValueStack贯穿整个action的生命周期，每一个action实例都拥有一个ValueStack对象，其中保存了当前action对象和其他相关对象.
+
+    3.struts2把ValueStack对象保存在名为：struts.valueStack的request域中.即ValueStack作用域为request.当action创建的时候，ValueStack就创建了，action被销毁的时候，ValueStack就销毁了
+    4.ValueStack中的数据分两部分存放：root（栈结构，CompoundRoot）和context（map形式,OgnlContext）
+         （1）    * 其中的root对象是CompoundRoot，CompoundRoot继承了ArrayList，提供了额外的方法：push(),和pop()方法，
+                 用来对root对象中所包含的数据进行存取.正是由于这两个方法，CompoundRoot变成了一个栈结构.
+            * struts2中，一个请求在最终到达Action的方法之前，Action对象本身会被压入ValueStack（实际上就是放到ValueStack
+                的CompoundRoot中），所以action对象是CompoundRoot中的一个元素.
+        （2）* 其中的context对象是OgnlContext，它实现了map接口，在valuestack的默认实现类中，即OgnlValueStack类中，
+                调用ongl中的方法：Ognl.createDefaultContext(..)给context赋值，查看源代码可知，
+                此方法返回的是一个OgnlContext对象.
+    5.获取ValueStack的三种方式
+        （1）ValueStack valueStack = ActionContext.getContext().getValueStack();    
+                ActionContext为Action的上下文，其中有重要的6大对象
+                    * valueStack,parameters,request,session,application,attr
+                    * 而ognl表达式必须选择AcitonContext中的一个对象作为根对象（root），默认为valueStack，因此访问valueStack中的数据不加#
+                        而如果要使用另外5个对象作为根对象，需要加#前缀.
+        （2）ValueStack valueStack = ServletActionContext.getValueStack(ServletActionContext.getRequest());        
+                ServletActionContext继承了ActionContext，它与web容器耦合，可以获取web容器的一些信息.
+
+        （3）ValueStack valueStack = (ValueStack) ServletActionContext.getRequest().getAttribute("struts.valueStack");
+ 
+二、ognl
+    1.ognl是struts2中使用的一种表达式语言，可用于jsp的标签库中，以方便访问各种对象的属性.
+        它用于把界面的参数传递到Action中（并进行类型转换），它还可以用于struts2的配置文件中.
+    2.Root对象
+        OGNL称为对象图导航语言，所谓对象图，即以任意一个对象为根，通过OGNL可以访问与这个对象关联的其它对象.
+	注意:    * 导航的目的，就是为了获取某个对象的值或设置某个对象的值或调用某个对象的方法.
+            * OGNL表达式语言的真正目的，是为了在那些不能写java代码的地方执行java代码，或者是为了更方便的执行java代码.
+    3.Context对象
+        * 在OGNL表达式中，有可能需要访问到多个毫不相干的对象，这时候，我们需要给OGNL传递一个Map类型的对象，把表达式中需要用到的对象放到
+            Map中即可.而这个Map对象称为Context
+        * 要在表达式访问到context中的对象，需要使用"#对象名称"的语法规则.
+        * 存在context的主要原因就是在OGNL中，不支持多个root对象，而如果需要在表达式中访问多个毫不相关的对象时，
+            只能通过一个Map来把这些对象统一传递给OGNL.
+
+
+2015-01-29
+
+见微知著, 所见即所得; 也就是背后一定有某种逻辑支撑其目前所展现的结果, 我们的努力方向就是要更深入一点儿找到这个隐藏的逻辑
+
+
+2015-01-27
+
+Eclipse Debug Mode: breakpoint 断点处, 所在线程的栈, 栈顶是当前调试代码执行到的地方. 这个概念要有!
+
+惯性思维的好处是在陌生的情境下可以快速的进入角色, 容易犯错误也是显而易见的, 
+
+
+
+
+2014-12-01
+
+[baadmin@qa2 _]$ sudo netstat -ntapl|grep 9090  只查询tcp协议
+[baadmin@qa2 _]$ sudo netstat -nuapl|grep 9090  只查询udp协议, 如果去掉参数 t or u, 则会显示全部的
+
+
+
+
+2014-11-21
+
+【1】	对配置文件的修改, 修改的时间点不同, 会导致不同的效果. 虽然 sts tomcat 会自动侦测配置文件的改动并重新热部署. 有时还是有必要再重启一下 tomcat.
+	由于 tomcat8 被集成在 sts 内部, sts 在启动 tomcat8 之前对整个工程作了一些全局的配置, 这些配置会首先被加载, 并影响到 tomcat8 的行为. 比如那个
+	Context Root, 即所谓的 path, 默认是 '/', 这个值会在 Web Project Settings 里面设置, 会直接反映到 Server.xml 文件里 <Host/> 下 <Context /> 里面
+	path 的值.
+
+	在创建工程时 src 是 Source Folder, 如果想把 src/main/java 变成 Source Folder, 可以在 src 下建 Folder -> main/java 然后选中目录 main/java 右键 use as source folder, 
+	或者是在新建工程时指定 Source Folder 为 src/main/java. 还有像 src/main/resource 这些都是 Source Folder.
+
+
+2014-11-20
+
+前两天做了 spring security hello world 的入门工作. 主要是两种实现形式, 一种是 xml 的配置方式, 另一种是通过 annotation 的注解方式.
+
+
+2014-11-19
+
+今天基本上没有干什么, 调试了几个bug, 又熟悉了几个环境配置, 不能再为了一个知识点花费那么长时间, 找到办法解决问题, 适可而止.
+
+
+2014-11-17
+
+win+tab: composed key display different surprisd effect.
+
+spring batch: primary step is done with about two weeks.To deal with big data export via excel.
+
+spring security: begin --> 首先是环境搭建, 中间遇到一些常见问题, 如下:
+
+【1】 jdk 版本与 spring 版本 及 jar 包冲突
+
+jdk1.8 conflict with spring version 3 , should match spring version 4.
+jdk1.7 match with spring version 3.
+
+===================================
+slf4j jar package added question:
+commons-logging-1.1.3.jar
+log4j-1.2.15.jar		// if missing, report error:  java.lang.ClassNotFoundException: org.apache.log4j.Level
+slf4j-api-1.5.8.jar
+slf4j-log4j12-1.5.8.jar	        // it's an adapter class. match log4j-1.2.15.jar.
+===================================
+
+know about spring tool suite develop environment:
+java project and web project directory structure differences and its inner tomcat 8 or 7 and deploy location.
+java compile level 1.8 is conflict with spring 3 , and match spring 4.so i download jdk 1.7
+change [project facet] level with the above consistent.
+
+【2】 spring mvc + spring security 的整个启动过程解析, 
+	在此之前, STS 这个集成开发环境会预先初始化一些插件, 比如 JMX, TOMCAT 等, Then:
+
+2014-11-17 19:12:34 INFO : org.springframework.web.context.ContextLoader - Root WebApplicationContext: initialization started
+十一月 17, 2014 7:12:34 下午 org.apache.catalina.core.ApplicationContext log
+信息: Initializing Spring root WebApplicationContext
+
+	主要配置文件的加载顺序, web.xml, Then:
+<context-param>
+	<param-name>contextConfigLocation</param-name>
+	<param-value>
+		/WEB-INF/spring-security.xml
+	</param-value>
+</context-param>
+	在 web.xml 文件里首先读到这个配置参数, 接着初始化这个配置文件 spring-security.xml 里的相关设置. 主要是一些相关的 bean:
+2014-11-17 19:12:34 INFO : org.springframework.web.context.support.XmlWebApplicationContext - Refreshing Root WebApplicationContext: startup date [Mon Nov 17 19:12:34 CST 2014]; root of context hierarchy
+2014-11-17 19:12:34 INFO : org.springframework.beans.factory.xml.XmlBeanDefinitionReader - Loading XML bean definitions from ServletContext resource [/WEB-INF/spring-security.xml]
+2014-11-17 19:12:35 INFO : org.springframework.beans.factory.support.DefaultListableBeanFactory - Pre-instantiating singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@5174595e: defining beans [org.springframework.security.filterChains,org.springframework.security.filterChainProxy,org.springframework.security.web.PortMapperImpl#0,org.springframework.security.web.PortResolverImpl#0,org.springframework.security.config.authentication.AuthenticationManagerFactoryBean#0,org.springframework.security.authentication.ProviderManager#0,org.springframework.security.web.context.HttpSessionSecurityContextRepository#0,org.springframework.security.web.authentication.session.CompositeSessionAuthenticationStrategy#0,org.springframework.security.web.savedrequest.HttpSessionRequestCache#0,org.springframework.security.access.vote.AffirmativeBased#0,org.springframework.security.web.access.intercept.FilterSecurityInterceptor#0,org.springframework.security.web.access.DefaultWebInvocationPrivilegeEvaluator#0,org.springframework.security.authentication.AnonymousAuthenticationProvider#0,org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint#0,org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter#0,org.springframework.security.userDetailsServiceFactory,org.springframework.security.web.DefaultSecurityFilterChain#0,org.springframework.security.provisioning.InMemoryUserDetailsManager#0,org.springframework.security.authentication.dao.DaoAuthenticationProvider#0,org.springframework.security.authentication.DefaultAuthenticationEventPublisher#0,org.springframework.security.authenticationManager]; root of factory hierarchy
+2014-11-17 19:12:36 INFO : org.springframework.web.context.ContextLoader - Root WebApplicationContext: initialization completed in 1925 ms
+
+	Then:
+信息: Initializing Spring FrameworkServlet 'mvc-dispatcher'
+2014-11-17 19:12:36 INFO : org.springframework.web.servlet.DispatcherServlet - FrameworkServlet 'mvc-dispatcher': initialization started
+2014-11-17 19:12:36 INFO : org.springframework.web.context.support.XmlWebApplicationContext - Refreshing WebApplicationContext for namespace 'mvc-dispatcher-servlet': startup date [Mon Nov 17 19:12:36 CST 2014]; parent: Root WebApplicationContext
+2014-11-17 19:12:36 INFO : org.springframework.beans.factory.xml.XmlBeanDefinitionReader - Loading XML bean definitions from ServletContext resource [/WEB-INF/mvc-dispatcher-servlet.xml]
+2014-11-17 19:12:36 INFO : org.springframework.beans.factory.support.DefaultListableBeanFactory - Pre-instantiating singletons in org.springframework.beans.factory.support.DefaultListableBeanFactory@588567ce: defining beans [helloController,org.springframework.context.annotation.internalConfigurationAnnotationProcessor,org.springframework.context.annotation.internalAutowiredAnnotationProcessor,org.springframework.context.annotation.internalRequiredAnnotationProcessor,org.springframework.context.annotation.internalCommonAnnotationProcessor,org.springframework.web.servlet.view.InternalResourceViewResolver#0,org.springframework.context.annotation.ConfigurationClassPostProcessor.importAwareProcessor]; parent: org.springframework.beans.factory.support.DefaultListableBeanFactory@5174595e
+
+<servlet>
+	<servlet-name>mvc-dispatcher</servlet-name>
+	<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+	<load-on-startup>1</load-on-startup>
+</servlet>
+<servlet-mapping>
+	<servlet-name>mvc-dispatcher</servlet-name>
+	<url-pattern>/</url-pattern>
+</servlet-mapping>
+	这个配置里告诉 org.springframework.web.servlet.DispatcherServlet 读取配置文件 mvc-dispatcher-servlet.xml , 是 <servlet-name>mvc-dispatcher</servlet-name> 加上后缀 -servlet.xml 组合而成.
+	特别注意这是默认的配置.其实可以指定这个配置文件名的.如下:  &&&&&&&&&&
+<!-- Processes application requests -->
+<servlet>
+	<servlet-name>appServlet</servlet-name>
+	<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+	<init-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/spring/appServlet/servlet-context.xml</param-value>
+	</init-param>
+	<load-on-startup>1</load-on-startup>
+</servlet>
+	
+<servlet-mapping>
+	<servlet-name>appServlet</servlet-name>
+	<url-pattern>/</url-pattern>
+</servlet-mapping>
+	这样就指定了配置文件名为: servlet-context.xml  &&&&&&&&&&
+	
+	
+Above All:
+	Should read the console output log message detailed and carefully.From the first line to the last.So can find where is the question.
+	经过对整个日志输出信息的仔细研读, 解决了困扰很久的问题, 而且解决了, 当时用 Maven[spring-boot] 快速构建的一个工程的 spring-mvc[spring-security]
+	
+【3】 <c:url /> 标签的学习 http://blog.sina.com.cn/s/blog_6a0cb8bc0100whp6.html 
+	a. <c:url>标签的作用主要用来产生字符串类型的url,而不是产生一个超链接,注意url(统一资源定位符)与超链接两个含义的区别.
+	   <c:url value="http://www.baidu.com" />在JSP页面中的输出形式如下: http://www.baidu.com
+	b. 要想使用这个<c:url>生成超链接,就必须配合HTML元素<a>使用.例如:
+		<a href="<c:url value="./testParamImported.jsp">
+				<c:param name="username" value="yangmu"></c:param>
+				<c:param name="password" value="hello"></c:param>
+			</c:url>">跳转页面</a>  生成一个超链接: http://localhost:8080/testParamImported.jsp?username=yangmu&password=hello 
+	c. 可以利用var和scope属性将<c:url>标签生成的字符串类型url存储在四作用域的属性内,然后再通过EL表达式将存储在四作用域属性中的url取出来.
+		<c:url value='http://www.baidu.com/s' var='baidu' scope='page'>
+			<c:param name='wd' value='Java'></c:param>
+		显示超链接 <a href="${pageScope.baidu}">链接到百度</a>
+	d. 没有使用<c:url>标签之前必须使用文档相对路径或是绝对路径对目标资源进行定位,如果使用根相对路径就会发生错误,具体详见
+		<a href='http://blog.sina.com.cn/s/blog_6a0cb8bc0100vpkc.html'>J2EE中的绝对路径&根相对路径&文档相对路径</a>
+		问题注意,但是在使用<c:url>标签的时候就可以以Web应用的根目录为参考点出发进行资源的定位,即根相对路径的使用.
+		<img src="<c:url value='/page/lightning.jpg'/>" />
+【4】	接着昨天, 其实今天已经是 19 号了. 在 tomcat 配置文件里 /conf/server.xml 
+		<Host name="localhost" appBase="webapps" unpackWARs="true" autoDeploy="true" xmlValidation="false" xmlNamespaceAware="false"> 这个地方涉及到一个很重要的问题, 热部署及重复加载的问题:
+		因为如果是在 <Host /> 下可以定义多个 <Context /> ,会导致重复加载.但是只要定义在一个文件里即可 /conf/context.xml 。这里面又关乎 appBase, docBase, path 这些变量的含义.
+		<Context path="" docBase="/var/wwwroot" crossContext="true" debug="0" reloadable="true" trusted="false" >
+		其中: name='localhost' 即可被访问物理主机, path="" 默认为 / , docBase="/var/wwwroot" 即可供访问的web资源存放的物理位置, 则完整的访问路径为 http://localhost:8080/ ; 
+		如果 path='controller', 则 http://localhost:8080/controller/ 这种情况一般不会用, 因为访问的时候需要加上 controller/ 这个
+【5】	这两天一直在搞这个 sts 环境的问题, 其内置的 tomcat, jdk 等路径, 得到的教训实在不少, 其中最重要的莫过于对程序执行顺序的跟踪和分析, 全局的把握, 知道问题出现在哪一个环节. 缩小范围.
+	突然 sts 启动不了了, 报 failed to load jre 什么的, 可能由于我机器上装的 jdk 版本比较乱, 就又新装了一个版本【可能与jdk的32位的还是64位的有关】, 然后配置 path environment【这个是windows 7上的环境配置】.
+	可能成功启动了, 不过在布署项目时, 报 jdk1.7.0_45 找不到, 这是我之前的一个版本, 虽然我的环境变量已经重装并配置好了, 但是在 sts 这个工具内部一些环境变量值的设置还是老的. 所以这个也需要修改【runtime environmnet-Run Configurations】

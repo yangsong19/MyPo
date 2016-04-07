@@ -1,4 +1,1218 @@
-		***编程心得***
+
+
+2016/04/06
+
+
+1.2.2. Simplicity of Modeling 
+It is often easier to manage your time when you have only one type of task to perform (fix these twelve bugs) than 
+when you have several (fix the bugs, interview replacement  candidates for  the system administrator, complete your 
+team's performance evaluations, and create the slides for your presentation next week). When you have only one type 
+of task to do, you can start at the top of the pile and keep working until the pile is exhausted (or you are); you don't 
+have to spend any mental energy figuring out what to work on next. On the other hand, managing multiple priorities 
+and deadlines and switching from task to task usually carries some overhead. 
+
+The same is true for software: a program that processes one type of task sequentially is simpler to write, less errorͲ
+prone, and easier to test than one managing multiple different types of tasks at once. Assigning a thread to each type of 
+task or to each element in a simulation affords the illusion of sequentiality and insulates domain logic from the details of 
+scheduling, interleaved operations, asynchronous I/O, and resource waits. A complicated, asynchronous workflow can 
+be decomposed into a number of simpler, synchronous workflows each running in a separate thread, interacting only 
+with each other at specific synchronization points. 
+
+This  benefit  is  often  exploited  by  frameworks  such  as  servlets  or  RMI  (Remote  Method  Invocation).  The  framework 
+handles the details of request management, thread creation, and load balancing, dispatching portions of the request 
+handling to the appropriate application component at the appropriate point in the workͲflow. Servlet writers do not 
+need to worry about how many other requests are being processed at the same time or whether the socket input and 
+output  streams  block;  when  a  servlet's  service  method  is  called  in  response  to  a  web  request,  it  can  process  the 
+request synchronously as if it were a single-threaded program. This can simplify component development and reduce 
+the learning curve for using such frameworks.  这可以减化组件开发及减少学习曲线
+
+
+
+
+
+
+
+
+2016/03/23
+
+其实从一个侧面可以再重新看数据库里面数据之间的关系, 表与表之间的关系; 
+
+表可以理解成容器, 用来存储数据, 其中的数据好像处于一个个固定的格子里面不动;
+
+CRUD 的核心是要明确数据的位置关系, 定位到数据所在的位置, 无论是无中生有, 还有删除数据, 移动数据, 修改数据;
+
+可以看成是数据位置处于不断的变动或静止状态......
+
+如果同一条数据存在于不同的表 -- 容器中, 数据自身的一些信息反映了容器之间的关系
+
+
+2016/03/17
+
+遇到的问题是会随着时间的推移发生变化的, 因为某一个或几个条件已经不存在了或改变了, 
+这个时候最好是能找到前后变化的过程, 这样才有利于问题的最终解决
+
+清图片缓存的脚本里面没有考虑 thumb80x60, 
+但是我在请求 api.vuclip.com/p?t=thumb80x60&cid=1108633030 的时候用了这个参数, 而即使没有这个分辨率, 服务器
+会正常切出这个分辨率的图片并缓存且返回.
+但是由于出现了一个问题 -- 1108633030 这个 cid 的当前 version=2 是不正确的, 后来我把将其删除了, 保留 version=3
+但是再访问仍然返回之前的那个错误不带 title 的图片, 即使清了缓存也不起作用;
+
+--- 这个时候的分析思路是, 这个 cid 1108633030 对应的正确图片肯定是个带 title 的图片, 所以肯定和缓存有关,
+但是缓存已经清过了, 然后再换另外一种请求方式返回正确结果 api.vuclip.com/p?t=thumb120x90&cid=1108633030,
+说明错误就出现在 thumb80x60, 一查具体脚本就会发现里面没有考虑 80x60; 加上后再清一遍就正常了.
+
+
+
+2016/03/11
+
+position 的四个属性值： relative ，absolute ，fixed，static 
+
+下面分别讲述这四个属性，以简单代码表示
+
+<div id="parent">
+     <div id="sub1">sub1</id>
+     <div id="sub2">sub2</id>
+</div>
+
+
+1. relative
+
+relative属性相对比较简单，我们要搞清它是相对哪个对象来进行偏移的。答案是它本身的位置。在上面的代码中，sub1和sub2是同级关系，如果设定sub1一个relative属性，比如设置如下CSS代码：
+
+#sub1
+{
+   position: relative;
+    padding: 5px;
+    top: 5px;
+    left: 5px;
+}
+
+
+我们可以这样理解，如果不设置relative属性，sub1的位置按照正常的文档流，它应该处于某个位置。但当设置sub1为的position为relative后，将根据top，right，bottom，left的值按照它理应所在的位置进行偏移，relative的“相对的”意思也正体现于此。
+
+对于此，只需要记住，sub1如果不设置relative时它应该在哪里，一旦设置后就按照它理应在的位置进行偏移。
+
+随后的问题是，sub2的位置又在哪里呢？答案是它原来在哪里，现在就在哪里，它的位置不会因为sub1增加了position的属性而发生改变。
+
+如果此时把sub2的position也设置为relative，会发生什么现象？此时依然和sub1一样，按照它原来应有的位置进行偏移。
+
+注意relative的偏移是基于对象的margin的左上侧的。
+
+**************
+
+2. absolute
+
+这个属性总是有人给出误导。说当position属性设为absolute后，总是按照浏览器窗口来进行定位的，这其实是错误的。实际上，这是fixed属性的特点。
+
+当sub1的position设置为absolute后，其到底以谁为对象进行偏移呢？这里分为两种情况：
+
+（1）当sub1的父对象parent也设置了position属性，且position的属性值为absolute或者relative时，也就是说，不是默认值的情况，此时sub1按照这个parent来进行定位。
+
+注意，对象虽然确定好了，但有些细节需要您的注意，那就是我们到底以parent的哪个定位点来进行定位呢？如果parent设定了margin，border，padding等属性，那么这个定位点将忽略padding，将会从padding开始的地方(即只从padding的左上角开始)进行定位，这与我们会想当然的以为会以margin的左上端开始定位的想法是不同的。
+
+接下来的问题是，sub2的位置到哪里去了呢 由于当position设置为absolute后，会导致sub1溢出正常的文档流，就像它不属于 parent一样，它漂浮了起来，在DreamWeaver中把它称为“层”，其实意思是一样的。此时sub2将获得sub1的位置，它的文档流不再基于 sub1，而是直接从parent开始。
+
+（2）如果sub1不存在一个有着position属性的父对象，那么那就会以body为定位对象，按照浏览器的窗口进行定位，这个比较容易理解。
+
+**********************
+
+3. fixed
+
+fixed是特殊的absolute，即fixed总是以body为定位对象的，按照浏览器的窗口进行定位。
+
+4. static
+
+position的默认值，一般不设置position属性时，会按照正常的文档流进行排列。
+
+不好理解的是absolute，需要细细琢磨...
+
+
+
+
+
+
+2015/12/29
+
+
+多变量控制法; 多变量参照系; 
+当有多个变量同时需要考虑的时候, 肯定会十分混乱, 一定要先限定一个不变, 再考虑其它变量; 反过来再考虑未考虑的变量; 
+而且它们都有先后逻辑顺序, 依赖关系; 一个定了, 其它的相应的关系就清晰了.
+
+容器或集装箱码头 -- 作用在于能把物品从一个地方送到另外一个地方  -- 转移目标的作用
+
+
+2015/12/21
+
+Intellj Idea:
+
+F4 -> Project Structure
+
+relay   n. 接替人员，替班; 传递; 接力赛; 继电器
+        vt. 转播，传达; 用驿马递送，使接替; 分程传递
+precede vt.& vi. 在…之前发生或出现，先于; 在…之上，优于; 给…作序; 处于…前面的位置
+
+
+2015/12/9
+
+
+INSERT IGNORE 与INSERT INTO的区别就是INSERT IGNORE会忽略数据库中已经存在 的数据，如果数据库没有数据，就插入新的数据，如果有数据的话就跳过这条数据。这样就可以保留数据库中已经存在数据，达到在间隙中插入数据的目的。
+eg:
+insert ignore into table(name)  select  name from table2
+
+select distinct(cg.genreid),cg.genrename from ct_genre cg, ct_content_genre ccg,ott_content oc where oc.region_id=2 and oc.product_id=1 and ccg.contentid=oc.content_id and instr(concat(',',ccg.subsubgenre,','),concat(',',cg.genreid,','))>0 order by cg.genrename;
+
+
+
+
+
+
+
+2015/12/1
+
+
+感觉自己仿佛生活在原始社会, 用着最原始的工具, 出卖着自己极其廉价的劳动力; 
+远离了这个有着极度发达文明的现代社会, 其先进的生产工具及意识形态都未能真正把自己武装起来;
+
+
+
+2015/11/18
+
+之前无论使用了什么复杂的技术处理, 最终都是文本字符串, 展现给用户读者; 
+
+
+2015/11/10
+
+在自己的错误中学习, 在别人的错误中学习; 这是一个进步成熟的良性过程;
+
+地铁里的乞讨是一种经典的众筹, 他们目标明确, 锁定有施舍能力的群众, 收效卓著, 平均月收入过万.
+
+程序也好, 业务模型也好, 都需要反复迭代; 才能发现不足, 完善功能, 达到最接近真实需求的境界. 
+
+mysql key, unique key, index 的准备理解
+
+2015/10/19
+
+认真而不矫情才能长久; 
+
+
+2015/10/16
+
+
+短视的人很可怕, 我自己难道不够特么短视么
+
+
+2015/10/10
+
+重剑无锋，大巧不工
+1999年左右，杨振宁到科大演讲《近代科学进入中国的回顾与前瞻》，结论是：“以下的几个长远的因素是使得一个社会、一个国家能够有辉煌的科技发展的必要条件。
+第一个是需要有聪明的年轻人，有头脑做科学研究；第二是需要有重视纪律、重视忍耐心、重视勤奋的社会传统；第三要有决心；第四要有经济条件。……中国在20世纪里有前三者，
+到了21世纪我认为将四者具备，所以我对21世纪中国科技的发展是绝对乐观的。”当时我十分不以为然，因为中国有太多的问题，腐败，专制，贫富差距，世风日下……所以，杨先生，
+您是不是老糊涂了？后来随着眼界的扩大，却越来越发现杨振宁讲的是完全正确的。他这些道理看起来很质朴，简直土得掉渣，但却是“重剑无锋，大巧不工”。这正应了《道德经》
+里的话：“上士闻道，勤而行之；中士闻道，若存若亡；下士闻道，大笑之。不笑不足以为道。”
+
+
+正如基辛格《大外交》第18章所言：“大事业往往需要一点天真去推动。”盲目的自信总比盲目的自卑好得多，这种自信是超级大国人民必备的底蕴。
+
+
+爱因斯坦说：“提出一个问题往往比解决一个问题更为重要，因为解决一个问题也许只是一个数学上或实验上的技巧问题。而提出新的问题、新的可能性，从新的角度看旧问题，
+却需要创造性的想像力，而且标志着科学的真正进步。”爱因斯坦正是因为问出“如果光速在所有惯性参照系中都不变会怎样”、“如果自然规律遵从的是洛伦兹变换而非伽利略变换会怎样”，
+才得到了狭义相对论，为人类打开了一扇全新的真理之门，这是天才的思维方式。
+
+
+
+
+2015/10/9
+
+最近老犯病, 粗心大意地干活.
+
+
+
+2015/9/14
+
+如果三十岁之前不能把自己的技术能力提升几个层次, 再经历几次技术升级, 真的该考虑转行了
+
+笨, 不是一件可怕的事, 最可怕的事就是, 明知道自己笨还装懂, 原地踏步不思进取
+
+所以选择什么样的药救命, 直接影响到疗效
+
+你越是怕什么越是会来什么, 横竖都是死, 那就选择一种蔚为壮观大气磅礴的方式
+
+不是所有的事情都要选择一种激进的方式, 而是要根据情况择善而从, 排优而估
+
+你心中所有的积淀, 都没有找到巧妙的出口, 以一种优雅的方式诞生到这个世界, 导致悲愤填膺, 郁郁而终
+
+乐嘉性格色彩分析 -- 每一套理论都能解释一部分遇到的现象, 其足够新鲜大众化, 即达到传播的效果
+
+六识
+（1）眼识︰以眼根为所依，缘色境；
+（2）耳识︰以耳根为所依，缘声境；
+（3）鼻识︰以鼻根为所依，缘香境；
+（4）舌识︰以舌根为所依，缘味境；
+（5）身识︰以身根为所依，缘触境；
+（6）意识：以意根为所依，缘法境。
+
+
+2015/9/7
+
+任何时候都不要侥幸, 因为你的工作和任何人都可能发生交集, 一个疏忽考虑不周都会导致不必要的错误和麻烦
+
+
+2015/6/10
+
+
+再论对象:
+	对象, 既可以当成有序的容器, 同时又可以当成无序的容器, 这个概念相当重要 !!!
+	促使我得到这个结论的想法缘于 Excel 导出功能.
+	
+	有序 -- 取出这个对象的所有属性放到一个有序的集合中, 使之有序  -- 可以对应到 Excel 的头部标题
+	无序 -- 由于对象的封装特性, 其属性的获取是无序的, 随机随时的  -- 可以根据有序集合里存储的对象所有属性逐个遍历反射得到其属性对应的值
+
+容器之间的交集, 就是一次碰撞, 一次矛盾的邂逅.
+
+纳什的均衡法则, 博弈理论
+
+
+2015/5/11
+
+滚到顶部
+
+<script type="text/javascript">
+    function pageScroll() {
+	      window.scrollBy(0,-100);
+	      scrolldelay = setTimeout('pageScroll()', 100);
+	      var sTop = document.documentElement.scrollTop + document.body.scrollTop;
+	      if(sTop == 0 ) clearTimeout(scrolldelay);
+    }
+</script>
+
+
+
+2015/4/15
+
+快速匹配有效信息, 并进行关联. 即使你能够大致定位到, 导致问题出现的原因的分布区域, 但是没有足够强悍的筛选匹配能力, 换句话说, 经验不足 -- 所谓经验, 就是经历无数失败
+	而总结出的解决问题时的思路及手段, 而且是有效的 -- 因为互联法则仅仅是帮助你锁定区域, 但是由于联系可能过多, 不能抓住核心因素间的因果. 
+核心问题是解决问题, 那就要在问题所在的上下文, 即产生的环境中找到相关联的因素, 再进行因果推断, 理清各要素之间的关系, 按优先级列出.
+
+
+
+2015/4/13
+
+
+// 域空间模型的概念 -- 可以看作是容器内部的层次结构, 或者是内部的不同维度, 层面之间的互联, 然后还有一根绣花针, 神奇之处在于若隐若现, 轨迹匿不可寻, 可又真切实际存在, 其诞生于容器的初始混沌状态,
+// 延伸穿梭游走于事件的各种状态之间, 归隐于容器的生命终结之时, 见证|记录了容器空间内各种场景变迁; 衔首望尾, 引风穿叶, 潜滋暗长, 一次轮回一场造化.
+// 魔术师, 侦探柯南, 感觉程序员的生活像极了这些职业
+
+// 限定语义分词器, 语义表达的边界
+
+select count(*), deptid 
+from (	
+		select e.id, e.name, e.salary, e.deptid		【这是问题的结果】
+		from   employee921 e	【这是个大的域空间, 限定了问题的边界】
+		where  salary > (select avg(salary) from employee921 p where  e.deptid = p.deptid)  【这是问题的解决逻辑, 包含被拆分之后的具体条件步骤】 
+	 )  as t 	
+group by tid ;
+
+
+
+
+
+2015/4/10
+
+等你有了一定的积累, 到了一定的层次境界, 对特定信息的敏感性|理解力, 抓取信息的能力与新手可以说是有天壤之别; 可以直接绕过冗余无用信息, 把问题给找出来.
+即使花时间调试也会得心应手, 效率不在一个层次上的.
+
+
+
+
+2015/4/8
+
+	错误就是最有价值的信息
+	
+	基于规则的程式世界 ----- 逻辑
+	基于情感的智能世界 ----- 学习
+
+
+2015/3/30
+
+datatable 是一个很优秀的插件, 那就要用心去发现其优秀的地方.
+	  其语意表达能力很强, 通过函数及参数的命名就知道其用处
+
+再论数据格式: 数据存储格式,
+	      数据传输格式,
+	      数据展现格式.
+	json 的名值对;
+	默认以空格及制表符等特定字符隔开;
+	首尾以特定字符限定;
+
+		具体的数据格式需要根据特定的使用场景来定制; 
+		一个设计优秀的数据格式会对业务逻辑的处理起到很大的辅助, 甚至节省时间;
+		结构优良的数据格式可以看作是一个精巧的容器, 内部遵守约定好的关联方式; 
+
+		像 Array, List, Map, Set 其实可以分成三大类: 一种是线性的结构, 连续存储;
+							     一种是字典的结构, 名值关联索引;
+							     一种是散乱无序随机结构, 但有个排重功能;
+		现在数据结构与算法用到的基本的设计经典的三种结构, 都避开不了上面这三种类型; 
+
+问题的边界, 无界是个好事呢, 还是有界必须遵守
+
+2015/3/26
+
+
+	【世界又美好了一些】
+		linux: grep --color=auto 打开搜索结果关键词着色功能
+		       zgrep 这个命令用于搜索这些以 .gz 为后缀的压缩文件
+		       bzgrep  这个命令用于搜索这些 .bz2, .bz 为后缀的压缩文件呢
+
+
+		
+2015/3/20
+
+如果事先设计制定好格式, 后续处理起来就会十分方便. 比如: json 字符串, 这个最流行的最简洁的表达能力很强的一个数据存储格式;
+
+杂乱无章的数据
+组织良好, 结构清晰的数据
+
+
+
+
+2015/3/17
+
+不在一个域里, 不在一个作用域里, 不在一个上下文中, 在程序设计时花括号包起来的一个 块 作用域.
+变量的作用域的这个基本的概念, 可以在配置文件里运用到, 其中一个重要的特性 -- 【继承】 之前熟悉的类的继承, 其实就是关系的继承, 再缩小到一个方法中, 会有作用域的空间范围的继承与覆盖现象.
+
+
+【三】的概念的现象及延伸
+数据库设计的三大范式;
+牛顿三大运动定律;
+总分总的作文写作结构; - 首尾响应
+输入处理产出的三段式; - 最基本地问题的产生发现, 经过思考验证, 最终得到结果的过程
+
+
+孙悟空三打白骨精
+宋江三打祝家庄
+诸葛亮七擒孟惑
+
+
+
+第一范式是不可拆分
+第二是完全依赖
+第三消除传递依赖
+
+第一范式：具有原子性
+第二范式：主键列与非主键列遵循完全函数依赖关系
+第三范式：非主键列之间没有传递函数依赖关系
+
+
+
+
+2015/3/13
+
+INSERT INTO ct_role_resource(resourceId,id,TYPE) SELECT 21, userid,1 FROM ct_user WHERE role=4 AND partnerid NOT IN (1745,495,1680,90,1756,1784,466,135,1435,72,264,1423,1632,1769,1606,1781,1251,902,1627,1727,1,421,1604,1577,1767,1578,1660,1747,877,1215);
+ sql 语句的这种写法, 之前没有引起足够的重视, 这种写法表意很明白, 简洁
+
+
+2015/3/10
+
+
+一句话一件事一段逻辑可能有多种解释, 哪种解释最合乎需求, 当以当前的上下文为准, 其能前呼后应且可走通逻辑得到正确的结果为参照
+每个人在听到某一个词或一句话一段文的时候, 脑袋里会不由自主地调起储存地备用关联信息进行联想匹配, 得到自己那个解释观点结论的. 如果激进一点儿
+可能当时就表达观点且由于忽略, 没有照顾好那个讲话的人的全部语境, 导致给出的答案浅薄且可能离题千里. 当然还有一种情况是不会出错的, 就是假定在
+一个默认的大家都掌握的上下文语境中, 有可能不需要讲话的人读完就可以下个结论, 甚至更加高明呢
+
+
+
+
+2015/3/4
+
+再论轮回, 因果:
+	作文章的作家, 写代码的程序员, 拍电影的演员等等, 乃至人的一生.
+都有其特定的轨迹可循
+	宿命之力, 轮回之线, 若隐若现的丝线;
+看似说不明道不白的玄奥现象, 如果静思慧启还是有可参悟的法则可以阐明的
+
+前因后果, 人力干预, 环境因素.
+
+真相假相, 机器不会骗人
+									
+									
+
+2015/3/3
+
+解决问题的痕迹, 也就是思考的过程, 当时各个关键场景的再现
+	
+
+	question: 统计 ct_staging_content 表里面某个 cp 用户的上传视频文件的统计状态信息, 按天查一个月三十天, 按周查十二周, 按月查十二个月一年的
+
+
+/*////////////// 
+if i want to query the ct_staging_content_id total items from '2014-09-18 00:00:00' before in 4 weeks and is qcpassed and user=23 and ' 
+如果我想查询 '2014-09-18 00:00:00' 这个时间点之前 12 周,即 3 个月之内的，且 userid=23 , qcstatus=qcpassed, 
+
+///////// weekly /////////////*/
+
+SELECT 	DATE_FORMAT(cst.createtime,"%U|%Y") week,COUNT(cst.ct_staging_content_id) cnt
+FROM 	ct_staging_content cst LEFT JOIN ct_pcc_info cpi ON cst.channelid=cpi.channelid
+WHERE 	cst.createtime<=NOW() 
+	AND (cst.createtime BETWEEN DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-%d 00:00:00'), INTERVAL 11 WEEK) AND NOW()) 
+	AND cst.status in ('qcpassed','published') AND cpi.author=#userid#
+	GROUP BY week;
+
+
+/*//////// daily ///
+	当前月从第一天到这个月的最后一天，比如九月。1-30
+	2014-09-01 00:00:00 -> 2014-09-30 00:00:00
+//////////*/
+
+SELECT 	DATE_FORMAT(cst.createtime,"%e|%c|%Y") day,COUNT(cst.ct_staging_content_id) cnt
+FROM 	ct_staging_content cst LEFT JOIN ct_pcc_info cpi ON cst.channelid=cpi.channelid
+WHERE 	(cst.createtime BETWEEN DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d 00:00:00'),INTERVAL -29 DAY) AND NOW())
+	AND cst.status in ('qcpassed','published') AND cpi.author=#userid#
+	GROUP BY day;
+
+/*///////// monthly /////
+	
+	从当前月往前推十二个月，比如  2014-09-22 -->  2013-11-01
+	
+/////////*/
+
+SELECT 	DATE_FORMAT(cst.createtime,"%c|%Y") month,COUNT(cst.ct_staging_content_id) cnt
+FROM 	ct_staging_content cst LEFT JOIN ct_pcc_info cpi ON cst.channelid=cpi.channelid
+WHERE 	(cst.createtime BETWEEN DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-01'),INTERVAL 11 MONTH) AND NOW())
+	AND cst.status in ('qcpassed','published') AND cpi.author=#userid#
+	GROUP BY month;
+
+
+
+/***********************************************分隔线*******************************************************/
+
+
+
+	question: admin 查看所有cp, 即 ct_staging_content 表里所有记录, 按天, 周, 年, 来统计不同状态的统计信息
+
+按天:
+
+SELECT  CONCAT(m.day,m.status) day,m.cnt
+FROM	(SELECT  DATE_FORMAT(cst.createtime,"%e|%c|%Y") DAY,COUNT(cst.ct_staging_content_id) cnt, cst.status 
+	 FROM 	 ct_staging_content cst 
+	 WHERE 	 (cst.createtime BETWEEN DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d 00:00:00'),INTERVAL -29 DAY) AND NOW())
+		 AND cst.status IN ('qcfailed','qcpassed','published') GROUP BY DAY,STATUS ) m
+	
+	UNION ALL
+
+SELECT  CONCAT(n.day,'transcodefailed') day, n.cnt
+FROM	(SELECT DATE_FORMAT(cst.createtime,"%e|%c|%Y") DAY,COUNT(cst.ct_staging_content_id) cnt
+	 FROM 	ct_staging_content cst 
+	 WHERE 	(cst.createtime BETWEEN DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d 00:00:00'),INTERVAL -29 DAY) AND NOW())
+		AND cst.status IN ('publishing_content','getcidfaild','pretransfaild','ctvideoinfofaild','publishing_pretrans') 
+		GROUP BY DAY) n
+	UNION ALL
+
+SELECT  CONCAT(o.day,'seconds') DAY, o.cnt // 这个sql语句是统计发布的所有视频在该时间区间内的秒数, 在后台会转化成分钟数. 注意有个科学计数法, 要转化.
+FROM	(SELECT DATE_FORMAT(cst.createtime,"%e|%c|%Y") DAY,SUM(CASE LENGTH(REPLACE(cst.duration,':','--'))-LENGTH(cst.duration) 
+		WHEN 2
+		THEN CAST(SUBSTRING_INDEX(cst.duration,':',1) AS UNSIGNED)*60*60 + CAST(SUBSTRING(SUBSTRING_INDEX(cst.duration,':',2),POSITION(':' IN SUBSTRING_INDEX(cst.duration,':',2)) + 1)*60 AS UNSIGNED) + CAST(SUBSTRING(SUBSTRING_INDEX(cst.duration,':',-1),POSITION(':' IN SUBSTRING_INDEX(cst.duration,':',-1)) + 1) AS UNSIGNED)
+		WHEN 1
+		THEN CAST(SUBSTRING_INDEX(cst.duration,':',1) AS UNSIGNED)*60 + CAST(SUBSTRING(SUBSTRING_INDEX(cst.duration,':',-1),POSITION(':' IN SUBSTRING_INDEX(cst.duration,':',-1)) + 1) AS UNSIGNED)
+		ELSE cst.duration	 
+		END) cnt
+	 FROM 	ct_staging_content cst 
+	 WHERE 	(cst.createtime BETWEEN DATE_ADD(DATE_FORMAT(NOW(), '%Y-%m-%d 00:00:00'),INTERVAL -29 DAY) AND NOW())
+		AND cst.status='published'  AND cst.duration != '' AND cst.duration IS NOT NULL GROUP BY DAY) o	
+
+按周:
+
+SELECT CONCAT(m.week,m.status) week, m.cnt
+FROM   (SELECT 	DATE_FORMAT(cst.createtime,"%U|%Y") WEEK,COUNT(cst.ct_staging_content_id) cnt, cst.status 
+	FROM 	ct_staging_content cst 
+	WHERE 	(cst.createtime BETWEEN DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-%d 00:00:00'), INTERVAL 11 WEEK) AND NOW()) 
+		AND cst.status IN ('qcfailed','qcpassed','published') GROUP BY WEEK,STATUS) m
+	
+	UNION ALL
+	
+SELECT CONCAT(n.week,'transcodefailed') week, n.cnt
+FROM   (SELECT 	DATE_FORMAT(cst.createtime,"%U|%Y") WEEK,COUNT(cst.ct_staging_content_id) cnt 
+	FROM 	ct_staging_content cst 
+	WHERE 	(cst.createtime BETWEEN DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-%d 00:00:00'), INTERVAL 11 WEEK) AND NOW()) 
+		AND cst.status IN ('publishing_content','getcidfaild','pretransfaild','ctvideoinfofaild','publishing_pretrans') GROUP BY WEEK) n
+	
+	UNION ALL 
+	
+SELECT CONCAT(o.week,'seconds') WEEK, o.cnt
+FROM   (SELECT 	DATE_FORMAT(cst.createtime,"%U|%Y") WEEK,SUM(CASE LENGTH(REPLACE(cst.duration,':','--'))-LENGTH(cst.duration) 
+		WHEN 2
+		THEN CAST(SUBSTRING_INDEX(cst.duration,':',1) AS UNSIGNED)*60*60 + CAST(SUBSTRING(SUBSTRING_INDEX(cst.duration,':',2),POSITION(':' IN SUBSTRING_INDEX(cst.duration,':',2)) + 1)*60 AS UNSIGNED) + CAST(SUBSTRING(SUBSTRING_INDEX(cst.duration,':',-1),POSITION(':' IN SUBSTRING_INDEX(cst.duration,':',-1)) + 1) AS UNSIGNED)
+		WHEN 1
+		THEN CAST(SUBSTRING_INDEX(cst.duration,':',1) AS UNSIGNED)*60 + CAST(SUBSTRING(SUBSTRING_INDEX(cst.duration,':',-1),POSITION(':' IN SUBSTRING_INDEX(cst.duration,':',-1)) + 1) AS UNSIGNED)
+		ELSE cst.duration	 
+		END) cnt
+	FROM 	ct_staging_content cst 
+	WHERE 	(cst.createtime BETWEEN DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-%d 00:00:00'), INTERVAL 11 WEEK) AND NOW()) 
+		AND cst.status='published'  AND cst.duration != '' AND cst.duration IS NOT NULL GROUP BY WEEK) o	
+
+
+按月:
+
+SELECT	CONCAT(m.month,m.status) month, m.cnt
+FROM	(SELECT DATE_FORMAT(cst.createtime,"%c|%Y") MONTH,COUNT(cst.ct_staging_content_id) cnt, cst.status
+	 FROM 	ct_staging_content cst 
+	 WHERE 	(cst.createtime BETWEEN DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-01'),INTERVAL 11 MONTH) AND NOW())
+		AND cst.status IN ('qcfailed','qcpassed','published') GROUP BY MONTH,STATUS) m
+
+	UNION ALL
+	
+SELECT	CONCAT(n.month,'transcodefailed') month, n.cnt
+FROM	(SELECT DATE_FORMAT(cst.createtime,"%c|%Y") MONTH,COUNT(cst.ct_staging_content_id) cnt
+	 FROM 	ct_staging_content cst 
+	 WHERE 	(cst.createtime BETWEEN DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-01'),INTERVAL 11 MONTH) AND NOW())
+		AND cst.status IN ('publishing_content','getcidfaild','pretransfaild','ctvideoinfofaild','publishing_pretrans') GROUP BY MONTH) n		
+	
+	UNION ALL
+
+SELECT	CONCAT(o.month,'seconds') month, o.cnt
+FROM	(SELECT DATE_FORMAT(cst.createtime,"%c|%Y") MONTH,SUM(CASE LENGTH(REPLACE(cst.duration,':','--'))-LENGTH(cst.duration) 
+		WHEN 2
+		THEN CAST(SUBSTRING_INDEX(cst.duration,':',1) AS UNSIGNED)*60*60 + CAST(SUBSTRING(SUBSTRING_INDEX(cst.duration,':',2),POSITION(':' IN SUBSTRING_INDEX(cst.duration,':',2)) + 1)*60 AS UNSIGNED) + CAST(SUBSTRING(SUBSTRING_INDEX(cst.duration,':',-1),POSITION(':' IN SUBSTRING_INDEX(cst.duration,':',-1)) + 1) AS UNSIGNED)
+		WHEN 1
+		THEN CAST(SUBSTRING_INDEX(cst.duration,':',1) AS UNSIGNED)*60 + CAST(SUBSTRING(SUBSTRING_INDEX(cst.duration,':',-1),POSITION(':' IN SUBSTRING_INDEX(cst.duration,':',-1)) + 1) AS UNSIGNED)
+		ELSE cst.duration	 
+		END) cnt
+	 FROM 	ct_staging_content cst 
+	 WHERE 	(cst.createtime BETWEEN DATE_SUB(DATE_FORMAT(NOW(), '%Y-%m-01'),INTERVAL 11 MONTH) AND NOW())
+		AND cst.status='published'  AND cst.duration != '' AND cst.duration IS NOT NULL GROUP BY MONTH) o
+
+
+
+
+/***********************************************分隔线*******************************************************/
+
+
+
+	question: 在发布项目的时候需要替换掉配置文件里的一些值, 现在的需求是要删掉指定的几行, 下面的正则匹配可以解决
+
+web.xml
+            <servlet>
+		<servlet-name>ContextRefresh</servlet-name>
+		<servlet-class>com.vuclip.action.ContextRefreshAction</servlet-class>
+		  <load-on-startup>1</load-on-startup>
+	    </servlet>
+	    <servlet-mapping>
+		<servlet-name>ContextRefresh</servlet-name>
+		<url-pattern>/contextRefresh</url-pattern>
+	    </servlet-mapping>
+
+applicationContext-quartz.xml
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean" autowire="no">
+		<property name="triggers">
+			<list>
+				<ref local="appToolTrigger" />
+				<!--
+					removed on ctool0:6080, only run it on ctool1:80 2014-12-23 10:44-->
+				<ref local="ingestionToolTrigger" /> 
+				<ref local="ingestionContentTrigger" />
+				 <!--<ref local="monitorTrigger" /> -->
+			</list>
+		</property>
+	</bean>
+
+
+build.xml
+<!-- remove  ContextRefresh from web.xml and remove all task from applicationContext-quartz.xml-->
+<replaceregexp file="${basedir}/WebRoot/WEB-INF/web.xml"
+		       match="&lt;servlet&gt;\s*${line.separator}\s*&lt;servlet-name&gt;ContextRefresh&lt;/servlet-name&gt;.*&lt;url-pattern&gt;/contextRefresh&lt;/url-pattern&gt;\s*${line.separator}\s*&lt;/servlet-mapping&gt;"
+		       replace=""
+		       byline="false"
+		       flags="gis"/>
+<replaceregexp file="${basedir}/config/applicationContext-quartz.xml"
+		       match="&lt;bean class=&quot;org\.springframework\.scheduling\.quartz\.SchedulerFactoryBean&quot; autowire=&quot;no&quot;&gt;.*&lt;/bean&gt;"
+		       replace=""
+		       byline="false"
+		       flags="gis"/>
+
+
+
+
+/***********************************************分隔线*******************************************************/
+
+
+
+	question: 用jenkins把content_track发布到qa2上之后, 访问网站的时候会报一个 /api/refreshAllGenres 已经绑定到 RefreshAllGenresAction, RefreshAllGenres 的错误, 
+		  而这两个类我已经是删掉了的!!!
+	
+[root@jenkins content_track_qa2_head]# ls __artifacts_temp/
+ctool  ROOT  ROOT.war  staging
+[root@jenkins content_track_qa2_head]# find -iname *AllGenres*.java
+[root@jenkins content_track_qa2_head]# find -iname *AllGenres*.class
+./out/production/Content_track/com/vuclip/action/api/RefreshAllGenresAction.class
+./out/production/Content_track/com/vuclip/action/api/RefreshAllGenres.class
+[root@jenkins content_track_qa2_head]# 
+[root@jenkins content_track_qa2_head]# 
+[root@jenkins content_track_qa2_head]# rm ./out/production/Content_track/com/vuclip/action/api/RefreshAllGenres*
+rm: remove regular file `./out/production/Content_track/com/vuclip/action/api/RefreshAllGenresAction.class'? y
+rm: remove regular file `./out/production/Content_track/com/vuclip/action/api/RefreshAllGenres.class'? y
+[root@jenkins content_track_qa2_head]# 
+[root@jenkins content_track_qa2_head]# 
+[root@jenkins content_track_qa2_head]# find -iname *AllGenres*.class
+[root@jenkins content_track_qa2_head]# 
+[root@jenkins content_track_qa2_head]#
+	发现这个问题的解决过程大致可以得出一个结果:
+		百分之八十以上的时间都花在论证调研, 反复尝试失败, 在不同的方向在徘徊停留验证上;
+		而只有不到百分之二十左右的时间才是最终有效的完成任务的关键一步. 筛选过滤终而得到微不可寻的蛛丝马迹.
+		这其实是一个步步惊心环环相扣渐入佳境的破案过程!! 真叫人感到情节跌宕起伏酣畅淋漓.
+
+
+
+
+2015-02-10
+
+
+windows 徽标键  + 向上-向下-向左-向右 方向键  组合会后会对当前窗口操作变化 
+
+
+
+
+2015-02-09
+
+static public String validate(String s){
+	if (s==null)
+	    return "";
+
+         //as simple as .replace("\\", "\\\\").replace("\'", "\\\'")
+	 int len = s.length();
+	 int i=0;
+	 for (; i<len; i++) {
+	    char c = s.charAt(i);
+	     if (c=='\''||c=='\\' || c=='\"' || c=='$')
+		 break;
+	 }
+	 if (i==len)
+	     return s;
+	 
+	StringBuffer sb = new StringBuffer(s.substring(0, i));
+	for (; i<len; i++) {
+	    char c = s.charAt(i);
+	    if (c=='\''){
+		sb.append(APOS);
+	    }else if(c=='\\'){
+		sb.append(ESC);
+	    }else if(c=='\"'){
+		sb.append(QUOTE);
+	    }else if(c == '$') {
+		sb.append(DOLLAR);
+	    }else {
+		sb.append(c);
+	    }
+	}
+	return sb.toString();
+}
+
+
+    String appendStr = "\"We're good$ friends\\!\"";
+    String replaceStr = "'Chaya Geet, Music, Songs,Anamika,Shagufta,Dil,bik\\e, " + TENSPACES + " where " + TENSPACES + ",love,romance,drive,relationship,coup\"les,hindi,movie,scene";
+#1  String cellValue = replaceStr.replaceAll("[\\s]{10,}where[\\s]{10,}", " ,appendStr=\"" + validate(appendStr) + "\" " + TENSPACES + " where " + TENSPACES);
+    System.out.println(cellValue); 
+
+    cellValue = replaceStr.replaceAll("[\\s]{10,}where[\\s]{10,}", " ,appendStr=\"%s\" " + TENSPACES + " where " + TENSPACES);
+#2  System.out.println(String.format(cellValue, validate(appendStr)).replace("&dollar;" , "$"));
+
+=== print result===:
+
+	'Chaya Geet, Music, Songs,Anamika,Shagufta,Dil,bik\e, ,appendStr=""We're good&dollar; friends\!""            where           ,love,romance,drive,relationship,coup"les,hindi,movie,scene
+	'Chaya Geet, Music, Songs,Anamika,Shagufta,Dil,bik\e, ,appendStr="\"We\'re good$ friends\\!\""            where           ,love,romance,drive,relationship,coup"les,hindi,movie,scene
+
+从上面可以看见打印结果字符串中 appendStr 里面的内容之不同, 第一个 appendStr 里面的单双引号没有反斜线转义, 下面那个却有; 而想要的正确结果就是下面这个带转义的!!!
+原因探析: 第一个是字符串拼接, 可能在拼接的过程中已经把这个反斜线转义字符给自动去掉了, 而第二个是用占位符装进去的, 正常了. 
+其实本来很简单很正常的一个操作本应该得到正确的结果, 可由于这个操作的上下文出现了不同的条件限制, 导致看似正常的一个操作也出了问题, 当时根本就没想到这一着儿. 这个问题已经
+存在很长时间了, 我当时的临时解决方案虽然不至于报错, 可最终导致了脏数据的产生. 发现这个问题的最终解决方案也纯属偶然, 是在调试过程中的一次【对比】发现的. 
+
+------>>
+
+#3  System.out.println(validate(replaceStr));
+    \'Chaya Geet, Music, Songs,Anamika,Shagufta,Dil,bik\\e,            where           ,love,romance,drive,relationship,coup\"les,hindi,movie,scene
+	这个正常的操作结果是正确的, 这个 #3 与 #1 的不同之处就在于 外面有个方法 replaceAll , 目前猜测就是因为这个方法引起的
+
+
+
+
+
+2015-02-05
+
+容器概念的再次延伸理解, 对象可以被理解为一个容器, 换句话说就是, 人本身也就是一个大容器, 里面装了很多脏器, 心肝脾肺等;
+记忆力的再生就在于能否快速迁移已有的物象知识来解决一个未知的问题, 即使不完全适用但也可以改造后创新
+对象内部的属性及方法都可以被看作是要被装入的物品, 如果更细的考察会发现, 属性相当于是静态的现成的需要被加工处理的食材, 而方法相当于生物化学反应消化转换吸收这一过程, 
+产生的直接结果是这个对象的健康成长; 当然如果这个对象设计的不够合理, 生病也是在所难免; 当然这个对象还要与外界打交道, 交换物质信息等;
+
+不是自己记不住东西, 而是未找到有效的方法
+
+AOP: Aspect-Oriented Programming 面向切面编程的再次理解 
+	正常的编程原则是顺序进行, 也就是点动成线的概念, AOP 其实是抓住了这些点, 在这些点上下了功夫, 横向拓展了这些点
+
+
+在模拟 AOP 的时候都有一个不成文的约定, 那就是从最基本的套路向目标靠近, 迭代过程, 这其实也是一个基本的认识过程吧:
+	1.	静态的方法, 写死代码
+	2.	继承一个类重写要被拦截的方法.  在这个新方法里, 前后写上自己的逻辑, 中间再调用父类方法的逻辑 super.methodName();
+	3.	写一个新类, 持有要被拦截方法的类作为自己的一个属性, 然后再写一个新方法, 加上自己逻辑后调用一下这个成员属性身上要拦截的方法即可
+	4.	就是动态代理了 JDK 自带的 Proxy , InvocationHandler. 必须实现这个接口才中.	- 其本质就是利用反射重新构造了一个类, 而这个类重写了需要被代理的类的方法 与 #3 的道理精神是一致的
+	5.	CGLIB.  - Spring 框架对那些没有实现接口的类也可以实现拦截, 自己改了二进制码 java virtual.
+
+		Enhancer en = new Enhancer();  - net.sf.cglib.proxy.Enhancer 用于生成返回代理类的增强类
+		// 进行代理
+		en.setSuperclass(BookServiceBean.class);
+		en.setCallback(myProxy);   - myProxy 这个类实现了net.sf.cglib.proxy.MethodInterceptor 这个接口
+		// 生成代理实例
+		return (BookServiceBean) en.create();
+
+	其本质是把要被代理的类重新实现了一次, 加上了拦截逻辑. 其实就是 2 的原理. 这些逻辑切入的时间点很重要.
+
+
+spring 容器里面放入的对象默认都是 singleton, 即单例的对象.
+@Resource, @Autowired, @Required
+@Component, @Repository, @Service, @Controller
+这里面的注解如果是 Spring 自己的, 那么结合
+	<context:component-scan base-package="org.springframework.samples.service"/>
+	<context:annotation-config />
+	这些配置信息就会被 spring 在合适的时机注入代码, 加到流程里面去. JDK 自带的注解是 java virtual 来解释辨识的
+
+
+设计哲学
+
+天道有常, 运行不悖; 变的是人心, 人心之不同, 造象尽不同; 这就是基本原理法则的普适性, 联系性, 归一性
+
+
+
+2015-01-22
+
+on your marks: 各就各位
+in conjunction with: 与...协力
+
+Object obj = new Object();
+obj = null; 告诉垃圾加收器立即回收这个对象, 如果不手动调用也不影响, 只是个好习惯及时清理, 减少不必要的内存占用
+
+
+
+2015-01-21
+
+ant 内置的一些常用属性 ${line.seperator} ${ant.file} 等; basedir 如果未指定就是指 build.xml 文件所在的父目录
+
+看书的速度为什么一直提不上去, 原因很简单, 第一点就是书看的太少, 量没有达到; 其二, 缺乏独立的思考, 受限于书本文字或者作者本身的某些影响, 而不能排除掉. 
+熟能生巧, 巧在变通; 唯变才通
+
+
+2015-01-08
+
+模棱两可的感觉, 待消除. 这种感觉如果是在创意一种飘渺的意象倒很有用处, 而如今, 编程要的是步步明了,确切, 断不可是是非非左右徘徊雾里看花.
+最近看[萧鼎]的小说, 无论叙事状物摹景言情构篇, 都十分亲切而流畅未尝感觉晦涩, 故如此论, 那万物万事道理皆通, 若极尽脑力智慧纵然己身愚钝也可登堂入室修行, 想明白关节处
+
+我之前太盯着某个点儿上看了, 致命性的忽略了全局的一体性, 导致进展迟缓甚至未能突破性解决问题, 这些都是本命的缺陷. 如果退一步作全局观, 就会很意思的发现你所专注的某个细节
+在整个链条上的位置及作用, 甚至会突发性地联想到一些更加有效而快捷的方案来, 而所有一切的基点无外乎就是对核心基础知识的熟练运用.
+
+设计模式或框架可以看作是专为解决某一类问题而存在的功能集
+
+
+
+
+2015-01-06
+
+在文件分块儿上传的时候, 块的大小要根据情况调节到合适的大小, content_track 用的大小是 128 * 1024
+
+
+
+2015-01-04
+
+
+javascript vs java : 都是从构造函数初始化作为起点, 然后才会有后续的行为.
+
+
+有时会把一些功能封装到 Js function 里面集中处理一类问题, 实现自管理:
+	案例: content_track -> autocomplete.js, jsr_class.js 这两个 js 里面就把 solor 返回的结果显示给用户的这个功能用 function 给封装了起来
+
+还有一种情况很相似, 就是把功能切割成块儿, 开启一个线程来独立地处理, 把必需的信息封装到这个线程, 然后 run 方法里放上处理逻辑就行了
+
+
+context -> 上下文 -> scope -> 作用域 -> 执行空间 -> 被定义的变量对象都有其生命周期或生存时间, 只有清楚这些最基本的概念才能运用的时候不犯迷糊
+
+
+ $("#createcontextdialog").dialog({
+	dialogClass: 'no-close',	// reomve close(x) icon
+	closeOnEscape: false,
+	open: function(event, ui){	// 经常这样设置 jquery ui dialog 初始化之后的一些样式
+		// hide the title bar 
+		$("div[aria-labelledby='ui-dialog-title-dockLoadingData']> .ui-dialog-titlebar").hide();
+		// deal list page
+		$("div[aria-describedby='dockLoadingData']").children(".ui-dialog-titlebar").hide();
+		$("#dockLoadingData").removeClass("ui-dialog-content" );
+		$("div[aria-labelledby='ui-dialog-title-dockLoadingData']").width(215); 
+		$("#dockLoadingData").removeAttr("style");
+	},
+	autoOpen: false,
+	//width: "100",
+	height: "auto",
+	modal: true
+});
+
+// ------------ prototype --------------------
+
+	function Person(name, gender) {
+		this.name = name;
+		this.gender = gender;
+		this.wau = function() {
+			return "I'm " + this.name + " and I'm a " + this.gender;
+		}
+	}
+
+	Person.prototype.age = 24;
+	Person.prototype.getAge = function() {
+		return this.age;
+	}
+
+	flag = true;
+	if (flag) {
+		var fun = new Person("Tower", "male");  //---------- keypoint is here ----------
+		alert(fun.name);
+		alert(fun.gender);
+		alert(fun.wau());
+		alert(fun.getAge());
+	}
+	Person.prototype.salary = 10000;
+	Person.prototype.getSalary = function(){
+		return this.name + " can earn about " + this.salary + "RMB each month." ;
+	};
+	// 下面就是最神奇的地方, 我们改变了Person的prototype,而这个改变是在创建fun之后
+	// 而这个改变使得fun也具有了相同的属性和方法
+	// 继承的意味即此
+	if (flag) {
+		alert(fun.getSalary());
+		alert(fun.constructor.prototype.age);//而这个相当于你直接调用 Person.prototype.age
+		alert(Person.prototype.age);
+	}
+	
+console.log(typeof Person); // function
+console.log(typeof fun);	// object
+function OuterFun() {
+	var num = 100;
+	var printNum = function(){alert(num);}  //此处引用的num是引用,而不是值,所以后面改变num,此处的num同样生效
+	num ++;
+	return printNum;
+}
+console.log(typeof OuterFun);
+
+	flag = true;
+	// 函数内部声明的方法是静态的,无法传递的
+	Person.school = "ISCAS";
+	Person.wau = function(){
+		return "zhutao";
+	};//动态更改声明期的方法,并不会影响由其创建的对象的方法, 即所谓的 静态
+	if (flag) {
+		alert(Person.school);
+		alert(fun.school);//输出的是 "undefined"
+		alert(Person.wau()); //输出 zhutao
+		alert(fun.wau()); // I'm Tower and I'm a male.
+	}
+	Person.prototype.getSalary = function(){
+		return "I can earn 1000000 USD";
+	};
+	if (flag) {
+		alert(fun.getSalary());//已经继承了改变, 即所谓的 动态
+	}
+
+	
+	// ---- closure -----
+	flag = true;
+	// 向body中生成一些链接,然后绑定事件
+	function addLink(num) {
+		for(var i=0; i<num; i++) {
+			var link = document.createElement('a');
+			link.innerHTML = "Link " + i;
+			link.onclick = function(){
+				alert(i);  // 其实这个地方和上面那个闭包 OuterFun 一样的道理, 这个地方 i 是引用, 而不是值传递
+			};
+			document.body.appendChild(link);
+		}
+	}   //可惜的是,当你点击每个链接时,输出的都是 Link 4
+	// 使用closure 可以解决这个问题
+	function addLink2(num)	{
+		for(var i=0; i<num; i++) {
+			var link = document.createElement('a');
+			link.innerHTML = "Link" + i;
+			link.onclick = function(j){ //使用closure
+				return function(){
+					alert(j);
+				};//返回一个函数
+			}(i);//调用这个函数
+			document.body.appendChild(link);
+		}
+	}
+	window.onload = addLink(4);
+	window.onload = addLink2(4);
+
+
+2012-12-30
+
+breakpoints are staighten to line. 这是汉化翻译
+break into the line. 这是标准化翻译
+
+一条线上的那么几个关键点, 是最先要入耳入眼的
+页面, 描描画画, 涂涂擦擦, 再加上区分各种状态的标志位, 把看似散乱的区域拼接成逻辑上的紧凑一体
+
+
+2014-12-29
+
+还差一个多线程的问题没有总结:
+
+	--  volatile 关键字在多线程中的原子性作用, 写入和读取操作的中间过程可能被别的线程打断, 从而导致数据的不一致, 这个关键字告诉 cpu 结果直接放入内存而不用寄存器缓存, 即使这样也不能保证一定不会出现问题, 在某些情境下会失效
+		可视性及易失性
+	--  对象锁的概念, 更正了之前混乱的认识. 类上也可以加锁. 调用 synchronized 的方法的那个对象 TargetObject 会加锁, 如果在同一个进程中 TargetObject 调用了多个同步方法那么 TargetObject 的锁的个数会递增, 直到这些同步方法退出
+	    TargetObject 上的锁的个数会相应递减; 代码块儿上的锁对象 BlockObject, 比加在方法上的锁要进入的次数更多, 即执行的速度会更快.
+
+redis 里面的 key type is string 的这种类型的键是可以被设计成数组来用的. 很多时候只是一个人的思想选择到位没有到位, 既然 redis 把 int, float, bits, string 都定义成 key 提供了统一的接口, 而异于 java 这种面向对象语言的类型及操作
+自然有办法来完成其自己的哲学命题和问题解决, 而我们的任务无非就是挖掘出自己的潜能去发现里面的多姿多彩的秘密, 运用为王, 借鉴为辅, 大胆假设为求证.
+
+
+下面两种方法均可以找出给定的字符串中有没有重复的字符:
+
+public static boolean isUniqueChars2(String str) {
+	boolean[] char_set = new boolean[256];      // 从这儿也可以发现, boolean 型变量会被初始化为 false, 而 int 型变量会被初始化为 0, 对象 Object 会被初始化为 Null, 也即是表示不存在或没有的初态
+	for (int i = 0; i < str.length(); i++) {
+		int val = str.charAt(i);
+		if (char_set[val])
+			return false;
+		char_set[val] = true;
+	}
+	return true;
+}
+	-- 上面这个方法的思路是: 分配一个长度为 256 的数组空间, 来存储给定字符串中每个字符的位置, 相当于是有了就占个位, 表示这个字符已经存在, 下次再有个相同的字符被检测到就返回 false 了.
+	   这什么要分配 256 这个长度的空间, 其实是有道理的, 因为 acsii 标准的规定有关, 具体见百度.
+
+public static boolean isUniqueChars(String str) {
+	int checker = 0;
+	for (int i = 0; i < str.length(); ++i) {
+		int val = str.charAt(i) - 'a';
+		if ((checker & (1 << val)) > 0)
+			return false;
+		checker |= (1 << val);
+	}
+	return true;
+}
+	-- 而这种方法用位运算, 其本质也是占位, 把给定的字符串里的每个字符取出来后, 换算成 char code, 先左移 val 位, 再与 checker 这个变量作或运算后, 把结果的占位情况保存到变量 checker 里面去了.
+	   而计算机作位运算的效率是最高的, 代价在于 checher 的值会变大, 其实也只不过开辟了 int 型的长度, 即 4 个字节, 32 位.
+
+2014-12-25
+
+构造函数: 一切对象的生命的起点. 其有一些必须的初始化值, 通过构造参数传递进来, 也可以在类内部显式初始化.
+	  之后对象的生命轨迹会随着逻辑的需要而在不同的时机被修改赋予不同的值. 转移传递.
+
+上下文切换要付出时间空间开销代价是避免不了的
+这和人的性格从无拘无束到谨小慎微的转换能是一回事吗, 非历经巨大变故不可逆转
+
+		
+2014-11-27
+
+如果在jsp里面写了大量的js, 如果有哪个id重了, 会出现一些隐性的错误, 今天碰到的一种情况是, input[#username] 重了, 导致在调试js时, 取值无效一直找不到问题, 后来才意识到这个可能.
+===>>>>  自己最大的悲哀, 莫过于陷入到迷茫困惑的时间太长,  而且是一种悲观地自我否定和排斥, 从来不曾理性的反省自身,反思解脱的道路. 都是事后发现问题出现在哪儿, 原来也不过如此.
+
+兵燹 bing xian 战火焚毁破坏
+
+【Linux + Xwindow】
+
+2014-11-06	--->
+
+grep '1g110301' content_track.log.2014-11-02 -n | tail -n 1  找出文件 content_track.log.2014-11-02 里面所有的字符串‘1g110301’并且加上其所在行号，然后再从结果中取出最后指定的n条纪录
+	====>>>>> 很实在一个需求，就是查询文件中满足需求的所有纪录中的最后几条纪录
+
+2014-10-28	--->
+
+// enable div draggable
+if($.browser.mozilla){ // firefox support occur exception
+	move("channelDialogPop", "channelDialogPop"); // 针对 firefox 支持不太好的情况，写了个js控制
+} else { //  google support jQuery excellent
+	$('#channelDialogPop').draggable();
+	$('#channelDialogPop').mouseover(function(){
+		$(this).attr("contenteditable", true);     
+		$(this).addClass("divmoveover");
+	});
+}
+
+// Draggable DIV
+var $j = function(id) {
+	return document.getElementById(id);
+}; 
+var getMouseP=function (e){ 
+	// obtain the mouse xy position and event
+	e = e || window.event; 
+	var m = (e.pageX || e.pageY)?{ x:e.pageX, y:e.pageY } : { 
+		x:e.clientX + document.body.scrollLeft - document.body.clientLeft, 
+		y:e.clientY + document.body.scrollTop  - document.body.clientTop };
+	return m; 
+};     
+var move = function(o,t) { 
+	var div = $j(o), t = $j(t); 
+	div.onmousedown = function(ev) { 
+		var mxy = getMouseP(ev);
+		// obtain the mouse live position
+		var by = {x : mxy.x - t.offsetLeft, y : mxy.y - t.offsetTop};
+		div.style.cursor = "move"; 
+		document.onmousemove = function(ev) { 
+			var mxy=getMouseP(ev); 
+			t.style.left = mxy.x - by.x - 600 + "px";//console.log("mxy.x:"+mxy.x+", by.x:"+by.x+" , mxy.x-by.x:"+(mxy.x-by.x)); 
+			t.style.top = mxy.y - by.y - 300 + "px";//console.log("mxy.y:"+mxy.y+", by.y:"+by.y+" , mxy.y-by.y:"+(mxy.y-by.y)); 
+		}; 
+		document.onmouseup = function(){ 
+			window.getSelection ? window.getSelection().removeAllRanges() : document.selection.empty(); 
+			this.onmousemove=null;
+		} 
+	} 
+}		
+		
+2014-10-23	--->
+
+// the second level genre
+addressList = new CellRangeAddressList(1, 1, 3, 3);
+dvConstraint = dvHelper.createFormulaListConstraint("INDIRECT(UPPER(CONCATENATE(IF(IFERROR(SEARCH(\"&\",$C$2),0),SUBSTITUTE($C$2,\"&\",\"_\"),IF(IFERROR(SEARCH(\"$\",$C$2),0),SUBSTITUTE($C$2,\"$\",\"_\"),$C$2)),\"" + SUFFIX_2 + "\")))");
+validation = dvHelper.createValidation(dvConstraint, addressList);
+sheet.addValidationData(validation);
+
+===>
+<removedRecord>已删除的记录: /xl/workbook.xml 的 命名区域 (工作簿)</removedRecord>		Named Range
+
+INDIRECT(UPPER(CONCATENATE(IF(IFERROR(SEARCH(\"&\",$C$2),0),SUBSTITUTE($C$2,\"&\",\"_\"),IF(IFERROR(SEARCH(\"$\",$C$2),0),SUBSTITUTE($C$2,\"$\",\"_\"),$C$2)),\"" + SUFFIX_2 + "\")))
+这个地方是解决 excel 打开时提示修复错误的一种情况。
+后来经查证，发现
+
+// all the second level genre referenced by the first specified level genre name
+XSSFName namedCell = workbook.createName();
+namedCell.setNameName(genre.getGenrename().toUpperCase().replace('&','_').replace('$', '_') + SUFFIX_2); // subgenre region name marked by lower genre name
+namedCell.setRefersToFormula("'genres'!$" + start[2] + "$" + start[1] + ":$" + end[2] + "$" + end[1]); // $A$1:$A$11
+
+===> 在创建命名区域时，有个非法的命名： Fitness&Health 中间有 & 这种特殊字符
+
+2014-10-21	--->
+
+	highcharts.js 这个插件。当时用的时候一个最大的困惑就是，数值与x轴坐标点对不齐，我当时由于要用按日期显示，所以就把 x 轴的 type设置成
+	datetime了，然后从后台返回的x轴数值是 milliseconds ，按照给的日期例子来做，大大的不妥。之后无论怎么折腾，在这样的一种前提下 x-axis:type:datetime.
+	始终未有成效，这个是插件自身计算画图时的误差。终于问了下 @张黎 之后，把 x-axis 设置成 categories:x_data, 这样需要把日期的格式在后台设置好，传到
+	前台即可。
+	可见在一个方向出现差错的时候，很难回头的。尤其是大前提错了，未能察觉。除非有人提醒你一句指点一下。再或者自己把注意力稍微偏移一段时间，然后换个思路
+	再来。其实什么时候自己都要清晰地意识到不能把方向定死在一处，而是尽可能多的留有余地。因为方案不是惟一的。不同阶段，不同时间点，人所处的状态不同，
+	想到的方案也会有优有差。但最终还是实际一一验证才能奏效。所有优良的方案，都是经过反复失败而来的。
+
+		
+2014-09-01	--->	书到用时方恨少，与已有知识靠合
+
+if(!(ExcelUtil.getExcludedHeaders().contains(headerCellValue) || headerCellValue.contains("title ("))) {
+				【和事件	P(A+B)=P(A)+P(B), 互斥;  积事件	P(A*B)=P(A)*P(B), 独立. 】
+数学在这里面显现出来的强劲魅力，【事件发生的概率。数学术语描述更为准确。正确性依据之所在。】
+条件分枝之间的关系【 if-else,其实就是一种互斥关系，非此即彼的关系;if,if,if..其实是一种相互独立的关系，即互不干涉】;
+以及条件逻辑表达式之间的关系【&&, ||】,&&其实是一种协同关系，独立，所有条件都成立这个事件才发生。||,其实是一种互斥关系，一个条件成立这个事件就发生。
+
+：：：下面这段代码是修改之前的部分 ：：：
+} else if("original content provider".equals(headerCellValue)){ // I need to do some change about the cell value
+						
+	if("".equals(cellValue) && (commonAttrVal == null || "".equals(commonAttrVal))) {
+		//continue; can't be 'continue', because the code below can't be executed!
+	} else {
+		if("".equals(cellValue) && (commonAttrVal != null && !"".equals(commonAttrVal)) && isCommonRequired){
+			//continue; can't be 'continue', because the code below can't be executed!
+		} else if("".equals(cellValue) && (commonAttrVal != null && !"".equals(commonAttrVal)) && !isCommonRequired && needUpdateCommonAttr){
+			//common and genre should be identical
+			attributeClause = "insert into ct_attribute_value(contentid,contenttype,attrid,value,genre) values(\""+contentId+"\","+contentType+"," +
+								attributeId+",\""+ExcelUtil.validate(cellValue)+"\","+commonAttrId+") " + " on duplicate key update value=\""+
+									ExcelUtil.validate(cellValue)+"\"; ";
+			reservedSqls.add(attributeClause);
+			
+			// for solr update
+//			commonContentAttr.setValue(ExcelUtil.validate(cellValue));
+		} else if(!"".equals(cellValue)){
+			partnerId = String.valueOf(ExcelUtil.getPartnerIdByName(cellValue));
+			if("null".equals(partnerId)) {
+				ExcelUtil.setCellComment(workbook, sheet, cell, "Error:original content provider[" + cellValue + "] you enter doesn't exist!");
+				attributeFlag = false;
+				globalFlag = false;
+			} else if(needUpdateCommonAttr){
+				attributeClause = "insert into ct_attribute_value(contentid,contenttype,attrid,value,genre) values(\""+contentId+"\","+contentType+"," +
+									attributeId+",\""+ExcelUtil.validate(partnerId+"")+"\","+commonAttrId+") " + " on duplicate key update value=\""+
+										ExcelUtil.validate(partnerId+"")+"\"; ";
+				reservedSqls.add(attributeClause);
+				
+				// for solr update
+//				commonContentAttr.setValue(ExcelUtil.validate(partnerId+""));
+			}
+		}
+	}
+		
+	if("".equals(cellValue) && (attrVal == null || "".equals(attrVal))) {
+		//continue; can't be 'continue', because the code below can't be executed!
+	} else {
+		 if("".equals(cellValue) && (attrVal != null && !"".equals(attrVal)) && !isRequired){
+			 attributeClause = "insert into ct_attribute_value(contentid,contenttype,attrid,value,genre) values(\""+contentId+"\","+contentType+"," +
+				attributeId+",\""+ExcelUtil.validate(cellValue)+"\","+genreId+") " + " on duplicate key update value=\""+
+					ExcelUtil.validate(cellValue)+"\"; ";
+			 reservedSqls.add(attributeClause);
+			 
+			 // for solr update
+//			contentAttr.setValue(ExcelUtil.validate(cellValue));
+//			contentAttrs.add(contentAttr);	  
+//			solrUpdates.add(contentAttrs);
+		} else if(!"".equals(cellValue)) {
+			partnerId = String.valueOf(ExcelUtil.getPartnerIdByName(cellValue));
+			if("null".equals(partnerId)) {
+				ExcelUtil.setCellComment(workbook, sheet, cell, "Error:original content provider[" + cellValue + "] you enter doesn't exist!");
+				attributeFlag = false;
+				globalFlag = false;
+			} else {
+				attributeClause = "insert into ct_attribute_value(contentid,contenttype,attrid,value,genre) values(\""+contentId+"\","+contentType+"," +
+									attributeId+",\""+ExcelUtil.validate(partnerId+"")+"\","+genreId+") " + " on duplicate key update value=\""+
+										ExcelUtil.validate(partnerId+"")+"\"; ";
+				reservedSqls.add(attributeClause);
+				
+				// for solr update
+//				contentAttr.setValue(ExcelUtil.validate(partnerId+""));
+//				contentAttrs.add(contentAttr);	  
+//				solrUpdates.add(contentAttrs);
+			}
+		}
+	}
+	
+}
+		
+		
+		
+2014-08-19	--->
+
+	/* count qc upload by status */			
+	SELECT channelname,channelid, GROUP_CONCAT(scids SEPARATOR '|') scids,MAX(CASE WHEN STATUS='qcpassed' THEN countsta ELSE 0 END) AS qcpassed,MAX(CASE WHEN STATUS='published' THEN countsta ELSE 0 END) AS published,MAX(CASE WHEN STATUS='qcfailed' THEN countsta ELSE 0 END) AS qcfailed
+	FROM (SELECT ch.name AS channelname,his.channelid,his.count AS countsta,his.status,his.scids  
+			FROM(
+			 SELECT channelid, COUNT(*) AS COUNT,STATUS,GROUP_CONCAT(ct_staging_content_id) AS scids 
+			 FROM ct_staging_content 
+			 WHERE channelid IN (SELECT channelid FROM ct_pcc_info WHERE cpid=(SELECT partnerid FROM ct_user WHERE userid=23)) 
+				   AND updatetime BETWEEN '2014-05-01' AND '2014-08-01' 
+				   AND STATUS IN ('qcpassed', 'qcfailed', 'approved', 'published')
+				   GROUP BY channelid, STATUS		 
+		) AS his INNER JOIN ct_pcc_info AS ch ON his.channelid=ch.channelid) AS statistics 
+	GROUP BY channelid	
+		
+2014-08-15	--->
+
+	可以想到的更为专业的技术网站 http://www.ibm.com
+	microsoft
+	apache 
+	google
+		
+2014-08-08	--->
+
+	最近问题总结：
+批量更新 Excel 时，内部程序报错，没有返回信息。如何查找这个问题，都有哪些问题当时没有考虑到导致出错的。
+1	要更新的文件有一万多条数据，我尝试前一百条没有问题，前二百条没有问题，前三百条有问题了，前五百条有问题了。
+	由此可以推出在第二百条左右的数据出现问题了，由于我的 sql 是自己手动拼出来的，而且是由单引号圈起来的，如果要导入的数据中包含了单引号，
+	是会导致 SQLException 的语法异常的，我把单引号转义了一下，这个问题得以修复。【后来我直接把由单引号括起来改成由双引号】
+2	在检验的时候出现 java.lang.IndexOutOfBoundsException: No group 9 这个异常，后来查资料才发现是由于要检验的数据中包含了 
+	正则里面的特殊字符 $ , 这个需要转义，应该这样写 【String cellValue = record.get(cell).replace("\"", "&quot;").replace("\'", "\\\'").replace("$", "\\u0024");】
+	但是写成 String cellValue = record.get(cell).replace("\"", "&quot;").replace("\'", "\\\'").replace("$", "\\\$"); 或者是 .replace("$", "\$") 都是错误的。
+3	solrupdate fail.这个是由于空指针没有处理导致的，经过查看是由于，在设 attribute value 时，有的没有值，被设成了 null 了，但 solr的更新程序没有处理 null 的
+	情况，而是直接使用了 value.split("\\|")
+		
+以上这些错误都需要日志分析，所以在用日志打印关键信息时会非常重要。
+		
+		
 2014-07-07	--->
 
 	在修复一个页面上的问题：jquery-ui 下拉列表会随着鼠标滚轮的滑动，出现错位的现象。
